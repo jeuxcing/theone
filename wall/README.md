@@ -29,3 +29,10 @@ Set 1 color in between two pixels (included)
 * Start led coordinate (1 Byte)
 * Stop led coordinate (1 Byte)
 * Colors \[R, G, B\] (3 Bytes)
+
+## Multi-packet (3 + ... Bytes)
+
+* Command: 'M' (1 Byte)
+* Destination: Id of the arduino to reach on the 1-Wire (1 Byte)
+* Number of encapsulated packets: 0 to 255 (1 Byte)
+* Content: Concatenated packets (Variable size)
