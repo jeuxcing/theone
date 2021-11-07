@@ -1,0 +1,12 @@
+Lister les arduinos et leur points de montages
+
+sudo dmesg  |grep  -B1 "USB ACM device"  | awk '/SerialNumber/{ser=$6} /cdc_acm/{dev=substr($5,1,length($5)-1);if (ser!="")print ser" /dev/"dev}' |uniq
+
+
+Rediriger le serial usb vers un socket tcp
+
+sudo socat /dev/ttyACM0,b115200,raw,echo=0 tcp-listen:5555
+
+
+Verifier la redirection
+telnet localhost 5555
