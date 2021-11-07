@@ -14,3 +14,8 @@ As gently explained by the small poem, this git is now the main one and brings a
 * gateway: Arduino code that transfer messages from/to serial to/from 1-wire.
 * mix: Arduino codes to handle the mix table.
 * wall: Arduino codes to handle the wall leds.
+
+## Useful redirection
+
+* Game message protocol is described in game/README.md
+* 1-Wire message protocol is described in wall/README.md

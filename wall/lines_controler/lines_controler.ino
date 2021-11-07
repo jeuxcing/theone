@@ -1,9 +1,15 @@
 #include <PJONSoftwareBitBang.h>
 #include <Adafruit_NeoPixel.h>
 
-// #define NET_ID 'R'
-// #define NET_ID 'V'
-#define NET_ID 'H'
+
+// --- Change here to define the led strip type ---
+
+// #define NET_ID 'R' /* Rings */
+// #define NET_ID 'V' /* Columns */
+#define NET_ID 'H' /* Rows */
+
+// ------------------------------------------------
+
 
 #define REFRESH_DELAY 5
 #define NB_LINES 5
