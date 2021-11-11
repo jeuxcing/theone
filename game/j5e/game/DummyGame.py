@@ -1,4 +1,5 @@
-from j5e.hardware.led_strip import Grid, GridDims
+import time
+from game.j5e.hardware.led_strip import Grid, GridDims
 from threading import Thread
 
 class Game(Thread):

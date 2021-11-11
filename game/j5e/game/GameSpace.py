@@ -1,6 +1,6 @@
 import time
 import networkx as nx
-from j5e.hardware.led_strip import Grid, GridDims as gd
+from game.j5e.hardware.led_strip import Grid, GridDims as gd
 
 # Not used
 class Node:

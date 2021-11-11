@@ -1,6 +1,6 @@
-from j5e.game.Timer import Timer
-from j5e.game.Agents import Lemming, Trap
-from j5e.game.GameSpace import GameSpace
+from game.j5e.game.Timer import Timer
+from game.j5e.game.Agents import Lemming, Trap
+from game.j5e.game.GameSpace import GameSpace
 
 if __name__ == "__main__":
     #stopFlag = Event()

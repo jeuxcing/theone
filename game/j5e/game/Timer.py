@@ -1,6 +1,6 @@
 from threading import Thread
 from multiprocessing import Event
-from j5e.game.Agents import Lemming
+from game.j5e.game.Agents import Lemming
 
 class Timer(Thread):
     def __init__(self):
