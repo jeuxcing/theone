@@ -119,8 +119,8 @@ class GameSpace:
 
     # Assumes positions for start and end are valid
     def set_section_status(self, segment_type, segment_pos_x, segment_pos_y, led_start, led_end, status):
-        graph_ind_start = to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_start)
-        graph_ind_end = to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_end)
+        graph_ind_start = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_start)
+        graph_ind_end = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_end)
         for i in range(graph_ind_start, graph_ind_end+1):
             self.graph.nodes[i]['status'] = status
         
@@ -191,7 +191,7 @@ class GameSpace:
     def filter_valid_nodes(self, nodes):
         new_nodes = []
         for n in nodes:
-            if(n['alive'] == 1):
+            if(self.graph.nodes[n]['alive'] == 1):
                 new_nodes.append(n)
         return new_nodes
         
@@ -216,15 +216,15 @@ class GameSpace:
             change_direction = False
             new_direction = direction
             if direction == Direction.FORWARD:
-                candidates = filter_valid_nodes(list(self.graph.successors(g_position)))
+                candidates = self.filter_valid_nodes(list(self.graph.successors(g_position)))
                 if(len(candidates) == 0):
                     change_direction = True
-                    candidates = filter_valid_nodes(list(self.graph.predecessors(g_position)))
+                    candidates = self.filter_valid_nodes(list(self.graph.predecessors(g_position)))
             elif direction == Direction.BACKWARD:
-                candidates = filter_valid_nodes(list(self.graph.predecessors(g_position)))
+                candidates = self.filter_valid_nodes(list(self.graph.predecessors(g_position)))
                 if(len(candidates) == 0):
                     change_direction = True
-                    candidates = filter_valid_nodes(list(self.graph.successors(g_position)))
+                    candidates = self.filter_valid_nodes(list(self.graph.successors(g_position)))
             if change_direction:
                 new_direction = -direction
             # TODO : solve cases where there are several candidates (or none)
@@ -246,7 +246,7 @@ class GameSpace:
 
 #gr = Grid()
 #gs = GameSpace(gr, 24, 12)
-gs = GameSpace()
-gs.init_graph(3, 24, 12)
-pos = ('line', 0, 0, 22, 1)
-print(gs.get_next_position(pos))
+#gs = GameSpace()
+#gs.init_graph(3, 24, 12)
+#pos = ('line', 0, 0, 22, 1)
+#print(gs.get_next_position(pos))
