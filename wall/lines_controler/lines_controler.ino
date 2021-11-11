@@ -5,8 +5,8 @@
 // --- Change here to define the led strip type ---
 
 // #define NET_ID 'R' /* Rings */
-// #define NET_ID 'V' /* Columns */
-#define NET_ID 'H' /* Rows */
+#define NET_ID 'V' /* Columns */
+// #define NET_ID 'H' /* Rows */
 
 // ------------------------------------------------
 
@@ -70,15 +70,28 @@ void receiver_function(uint8_t * payload, uint16_t length, const PJON_Packet_Inf
     Serial.print(']');
   }
   Serial.println();
-  
-  uint8_t command = payload[0];
-  switch(command) {
-    case 'L':
-      modify_led(payload, length);
-      break;
-    case 'S':
-      modify_segment(payload, length);
-      break;
+
+  int remaining_msgs = 1;
+
+  while (remaining_msgs > 0) {
+    uint8_t command = payload[0];
+    switch(command) {
+      case 'L':
+        modify_led(payload, length);
+        break;
+      case 'S':
+        modify_segment(payload, length);
+        break;
+      case 'M':
+        remaining_msgs = payload[1] + 1;
+        length = 2;
+        break;
+    }
+    
+    remaining_msgs--;
+    payload += length;
+    length = payload[0];
+    payload += 1;
   }
 };
 

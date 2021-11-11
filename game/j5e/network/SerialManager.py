@@ -16,7 +16,9 @@ class SerialManager(Thread):
         self.serial_id = serial_id
         self.serial = None
         self.inbox = []
-        self.outbox = []
+        self.outbox = {}
+        self.outbox_size = 0
+        self.current_dest = None
         # self.redirector = None
         self.on_event_functions = []
         self.verbose = verbose
@@ -27,7 +29,40 @@ class SerialManager(Thread):
 
 
     def send_msg(self, msg):
-        self.outbox.append(msg)
+        # Add the message size
+        # msg = [len(msg)] + list(msg.iterbytes())
+        msg = [len(msg) + 1] + [int.from_bytes(msg[i:i+1], "big") for i in range(len(msg))]
+        dest = msg[2]
+        # outbox destination check
+        if dest not in self.outbox:
+            self.outbox[dest] = [bytes(msg)]
+            self.outbox_size += 1
+        # Case of first msg
+        elif len(self.outbox[dest]) == 0:
+            self.outbox[dest].append(bytes(msg))
+            self.outbox_size += 1
+        # Case of multiple messages
+        else:
+            last_msg = self.outbox[dest][-1]
+            last_msg = [int.from_bytes(last_msg[i:i+1], "big") for i in range(len(last_msg))]
+            # last_msg = [int.from_bytes(b, "big") for b in self.outbox[dest][-1]]
+            # Not a multiple message => Create a multiple message
+            if last_msg[1] != 'M':
+                size = last_msg[0]
+                last_msg = [4 + size, ord('M'), dest, 1] + last_msg
+                self.outbox[dest] = self.outbox[dest][:-1]
+                self.outbox[dest].append(bytes(last_msg))
+            # Complete the last message ?
+            new_size = last_msg[0] + msg[0]
+            if new_size < 255:
+                last_msg.extend(msg) # Add the new msg at the end
+                last_msg[0] = new_size # Change the global message size
+                last_msg[3] += 1 # Change the number of messages in the multi-msg
+                self.outbox[dest] = self.outbox[dest][:-1]
+                self.outbox[dest].append(bytes(last_msg))
+            else:
+                self.outbox[dest].append(bytes(msg))
+                self.outbox_size += 1
 
 
     def list_arduinos(self):
@@ -64,11 +99,16 @@ class SerialManager(Thread):
             # Communicate with arduinos
             else:
                 try:
-                    if len(self.inbox) > 10 or len(self.outbox) > 10:
-                        print("Mailbox warning: <", len(self.inbox), "   >", len(self.outbox))
+                    if len(self.inbox) > 10 or self.outbox_size > 10:
+                        print("Mailbox warning: <", len(self.inbox), "   >", self.outbox_size)
                     # Write to device
-                    if acknowledged and len(self.outbox) > 0:
-                        msg = bytes([len(self.outbox[0])]) + self.outbox[0]
+                    if acknowledged and self.outbox_size > 0:
+                        msg = None
+                        for dest in self.outbox:
+                            if len(self.outbox[dest]) > 0:
+                                msg = self.outbox[dest][0]
+                                self.current_dest = dest
+                                break
                         if self.verbose:
                             print("send:", msg)
                         self.last_send = time.time()
@@ -82,7 +122,7 @@ class SerialManager(Thread):
                     for i in range(min(100, self.serial.in_waiting)):
                         self.inbox.append(self.serial.read())
 
-                    if len(self.inbox) > 0:
+                    while len(self.inbox) > 0:
                         size = int.from_bytes(self.inbox[0], "big")
                         if size <= len(self.inbox) - 1:
                             msg = self.inbox[1:size+1]
@@ -94,12 +134,15 @@ class SerialManager(Thread):
                             if not acknowledged and int.from_bytes(msg[0], "big") == 0xFF:
                                 if self.verbose:
                                     print("ack [latency", time.time() - self.last_send, "]")
-                                self.outbox = self.outbox[1:]
+                                self.outbox[self.current_dest] = self.outbox[self.current_dest][1:]
+                                self.outbox_size -= 1
                                 acknowledged = True
                                 continue
 
                             for function in self.on_event_functions:
                                 function("msg", msg)
+                        else:
+                            break
                 except serial.serialutil.SerialException:
                     self.serial = None
                 except Exception as e:

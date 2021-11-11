@@ -19,7 +19,7 @@ class Game(Thread):
                         self.grid.set_color(GridDims.ROW, line_idx, seg_idx, led_idx, (0, 40, 0))
                         self.grid.set_color(GridDims.COL, line_idx, seg_idx, led_idx, (0, 40, 0))
                         self.grid.set_color(GridDims.RING, line_idx, seg_idx, led_idx//2, (0, 40, 0))
-                        time.sleep(0.3)
+                        time.sleep(0.5)
                         self.grid.set_color(GridDims.ROW, line_idx, seg_idx, led_idx, (0, 0, 0))
                         self.grid.set_color(GridDims.COL, line_idx, seg_idx, led_idx, (0, 0, 0))
                         self.grid.set_color(GridDims.RING, line_idx, seg_idx, led_idx//2, (0, 0, 0))
