@@ -76,6 +76,9 @@ class GameSpace:
                     i = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx-1)
                     j = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx)
                     self.graph.add_edge(i, j)
+                led_end = self.to_graph_node_index('ring', line_idx, seg_idx, n_leds_ring-1)
+                led_start = self.to_graph_node_index('ring', line_idx, seg_idx, 0)
+                self.graph.add_edge(led_end, led_start)
              
         # Lines and rings
         for line_idx in range(grid_size):
@@ -89,11 +92,11 @@ class GameSpace:
         # Columns and rings
         for line_idx in range(grid_size):
             for seg_idx in range(grid_size-1):
-                led_ring_start = self.to_graph_node_index('ring', line_idx, seg_idx, 5)
+                led_ring_start = self.to_graph_node_index('ring', seg_idx, line_idx, 5)
                 led_strip_start = self.to_graph_node_index('column', line_idx, seg_idx, 0)
                 self.graph.add_edge(led_ring_start, led_strip_start)
                 led_strip_end = self.to_graph_node_index('column', line_idx, seg_idx, n_leds_segment-1)
-                led_ring_end = self.to_graph_node_index('ring', line_idx, seg_idx+1, 11)
+                led_ring_end = self.to_graph_node_index('ring', seg_idx+1, line_idx, 11)
                 self.graph.add_edge(led_strip_end, led_ring_end)
              
         #print("Printing nodes and edges")
@@ -169,11 +172,20 @@ class GameSpace:
     
     def compute_next_position_on_graph(self, g_position, direction):
         candidates = []
-        if self.graph.nodes[g_position]["type"] == "ring":
-            succs = list(self.graph.successors(g_position))
-            preds = list(self.graph.predecessors(g_position))
-            next = self.find_ring_exit(succs, preds)
-            return (next["position"], next["direction"])
+        # Specific behavior when in a ring
+        if (self.graph.nodes[g_position]["type"] == "ring"):
+            if direction == 0:
+                print("ring")
+                succs = list(self.graph.successors(g_position))
+                preds = list(self.graph.predecessors(g_position))
+                next = self.find_ring_exit(succs, preds)
+                return (next["position"], next["direction"])
+            else:
+                # Issue : what hapens when a ring is blocked / has no available successor ?
+                candidates = list(self.graph.successors(g_position))
+                new_g_position = candidates[0]
+                new_direction = 0
+                return (new_g_position, new_direction)
         else:
             change_direction = False
             new_direction = direction

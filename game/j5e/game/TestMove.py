@@ -33,8 +33,8 @@ class TestMove(unittest.TestCase):
         
     def test_line010_to_col020(self):
         start = ("line", 0, 1, 0)
-        goal = ("col", 0, 2, 0)
-        self.go(start,goal,100)
+        goal = ("column", 0, 1, 0)
+        self.go(start,goal,200)
 
     
     def test_ring_213_to_line2023(self):
