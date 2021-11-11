@@ -36,19 +36,22 @@ class GameSpace:
                     #n = Node()
                     #n.create('line', line_idx, seg_idx, led_idx)
                     #self.graph.add(n)
-                    self.graph.add_node(node_index, {"type", "line"})
+                    self.graph.add_node(node_index)
+                    self.graph.nodes[node_index]['type'] = "line"
                     node_index += 1
         # Columns
         for line_idx in range(grid_size):
             for seg_idx in range(grid_size-1):
                 for led_idx in range(n_leds_segment):
-                    self.graph.add_node(node_index, {"type", "column"})
+                    self.graph.add_node(node_index)
+                    self.graph.nodes[node_index]['type'] = "column"
                     node_index += 1
         # Rings
         for line_idx in range(grid_size):
             for seg_idx in range(grid_size):
                 for led_idx in range(n_leds_ring):
-                    self.graph.add_node(node_index, {"type", "ring"})
+                    self.graph.add_node(node_index)
+                    self.graph.nodes[node_index]['type'] = "ring"
                     node_index += 1
         # Create edges
         # Within lines segments
@@ -156,10 +159,10 @@ class GameSpace:
     # Exits the rings if possible ; if not, keep on turnin'
     def find_ring_exit(self, succs, preds):
         for x in succs:
-            if x["type"] != "ring":
+            if self.graph.nodes[x]["type"] != "ring":
                 return {"position" : x, "direction" : 1}
         for x in preds:
-            if x["type"] != "ring":
+            if self.graph.nodes[x]["type"] != "ring":
                 return {"position" : x, "direction" : -1}
         return {"position" : succs[0], "direction" : 0}
         
@@ -169,7 +172,7 @@ class GameSpace:
         if self.graph.nodes[g_position]["type"] == "ring":
             succs = list(self.graph.successors(g_position))
             preds = list(self.graph.predecessors(g_position))
-            next = find_ring_exit(succs, preds)
+            next = self.find_ring_exit(succs, preds)
             return (next["position"], next["direction"])
         else:
             change_direction = False
