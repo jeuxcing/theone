@@ -36,19 +36,19 @@ class GameSpace:
                     #n = Node()
                     #n.create('line', line_idx, seg_idx, led_idx)
                     #self.graph.add(n)
-                    self.graph.add_node(node_index)
+                    self.graph.add_node(node_index, {"type", "line"})
                     node_index += 1
         # Columns
         for line_idx in range(grid_size):
             for seg_idx in range(grid_size-1):
                 for led_idx in range(n_leds_segment):
-                    self.graph.add_node(node_index)
+                    self.graph.add_node(node_index, {"type", "column"})
                     node_index += 1
         # Rings
         for line_idx in range(grid_size):
             for seg_idx in range(grid_size):
                 for led_idx in range(n_leds_ring):
-                    self.graph.add_node(node_index)
+                    self.graph.add_node(node_index, {"type", "ring"})
                     node_index += 1
         # Create edges
         # Within lines segments
@@ -150,27 +150,45 @@ class GameSpace:
             segment_pos_y = pos_in_set // self.n_leds_ring
             position_in_seg = pos_in_set % self.n_leds_ring
         return (strip_type, segment_pos_x, segment_pos_y, position_in_seg)
+
+
+    # Assumes that the next element of the ring is the first 'successor' neighbor
+    # Exits the rings if possible ; if not, keep on turnin'
+    def find_ring_exit(self, succs, preds):
+        for x in succs:
+            if x["type"] != "ring":
+                return {"position" : x, "direction" : 1}
+        for x in preds:
+            if x["type"] != "ring":
+                return {"position" : x, "direction" : -1}
+        return {"position" : succs[0], "direction" : 0}
         
     
     def compute_next_position_on_graph(self, g_position, direction):
         candidates = []
-        change_direction = False
-        new_direction = direction
-        if direction == 1:
-            candidates = list(self.graph.successors(g_position))
-            if(len(candidates) == 0):
-                change_direction = True
-                candidates = list(self.graph.predecessors(g_position))
-        elif direction == -1:
-            candidates = list(self.graph.predecessors(g_position))
-            if(len(candidates) == 0):
-                change_direction = True
+        if self.graph.nodes[g_position]["type"] == "ring":
+            succs = list(self.graph.successors(g_position))
+            preds = list(self.graph.predecessors(g_position))
+            next = find_ring_exit(succs, preds)
+            return (next["position"], next["direction"])
+        else:
+            change_direction = False
+            new_direction = direction
+            if direction == 1:
                 candidates = list(self.graph.successors(g_position))
-        if change_direction:
-            new_direction = -direction
-        # TODO : solve cases where there are several candidates (or none)
-        new_g_position = candidates[0]
-        return (new_g_position, new_direction)
+                if(len(candidates) == 0):
+                    change_direction = True
+                    candidates = list(self.graph.predecessors(g_position))
+            elif direction == -1:
+                candidates = list(self.graph.predecessors(g_position))
+                if(len(candidates) == 0):
+                    change_direction = True
+                    candidates = list(self.graph.successors(g_position))
+            if change_direction:
+                new_direction = -direction
+            # TODO : solve cases where there are several candidates (or none)
+            new_g_position = candidates[0]
+            return (new_g_position, new_direction)
     
     
     def get_next_position(self, position_and_direction):
