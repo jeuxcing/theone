@@ -112,9 +112,9 @@ class GameSpace:
         #print("Printing nodes and edges")
         #print(list(self.graph.nodes))
         #print(list(self.graph.edges))
-        print("Neighbors of node 290 = ", list(self.graph.neighbors(290)))
-        print("Neighbors of node 22 = ", list(self.graph.neighbors(22)))
-        print("Neighbors of node 22 = ", list(self.graph.neighbors(23)))
+        #print("Neighbors of node 290 = ", list(self.graph.neighbors(290)))
+        #print("Neighbors of node 22 = ", list(self.graph.neighbors(22)))
+        #print("Neighbors of node 22 = ", list(self.graph.neighbors(23)))
 
 
     # Assumes positions for start and end are valid
@@ -122,7 +122,7 @@ class GameSpace:
         graph_ind_start = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_start)
         graph_ind_end = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_end)
         for i in range(graph_ind_start, graph_ind_end+1):
-            self.graph.nodes[i]['status'] = status
+            self.graph.nodes[i]['alive'] = status
         
         
     def to_graph_node_index(self, segment_type, segment_pos_x, segment_pos_y, position_in_seg):
@@ -178,14 +178,15 @@ class GameSpace:
 
     # Assumes that the next element of the ring is the first 'successor' neighbor
     # Exits the rings if possible ; if not, keep on turnin'
-    def find_ring_exit(self, succs, preds):
+    def find_ring_exit(self, succs, preds, direction):
         for x in succs:
             if self.graph.nodes[x]["type"] != "ring":
-                return {"position" : x, "direction" : 1}
+                return {"position" : x, "direction" : Direction.FORWARD}
         for x in preds:
             if self.graph.nodes[x]["type"] != "ring":
-                return {"position" : x, "direction" : -1}
-        return {"position" : succs[0], "direction" : 0}
+                return {"position" : x, "direction" : Direction.BACKWARD}
+        print("haha")
+        return {"position" : succs[0], "direction" : direction}
 
 
     def filter_valid_nodes(self, nodes):
@@ -194,23 +195,39 @@ class GameSpace:
             if(self.graph.nodes[n]['alive'] == 1):
                 new_nodes.append(n)
         return new_nodes
+
+
+    def reverse_direction(self, direction):
+        if direction == Direction.FORWARD:
+            return Direction.BACKWARD
+        elif direction == Direction.BACKWARD:
+            return Direction.FORWARD
+        return direction
         
     
     def compute_next_position_on_graph(self, g_position, direction):
         candidates = []
         # Specific behavior when in a ring
         if (self.graph.nodes[g_position]["type"] == "ring"):
-            if direction == 0:
+            if direction == Direction.RING_FORWARD:
                 #print("ring")
                 succs = list(self.graph.successors(g_position))
                 preds = list(self.graph.predecessors(g_position))
-                next = self.find_ring_exit(succs, preds)
+                next = self.find_ring_exit(succs, preds, direction)
+                return (next["position"], next["direction"])
+            elif direction == Direction.RING_BACKWARD:
+                #print("ring")
+                succs = list(self.graph.successors(g_position))
+                preds = list(self.graph.predecessors(g_position))
+                next = self.find_ring_exit(preds, succs, direction)
                 return (next["position"], next["direction"])
             else:
                 # Issue : what hapens when a ring is blocked / has no available successor ?
                 candidates = list(self.graph.successors(g_position))
                 new_g_position = candidates[0]
-                new_direction = 0
+                new_direction = Direction.RING_FORWARD
+                if direction == Direction.BACKWARD:
+                    new_direction = Direction.FORWARD
                 return (new_g_position, new_direction)
         else:
             change_direction = False
@@ -226,7 +243,7 @@ class GameSpace:
                     change_direction = True
                     candidates = self.filter_valid_nodes(list(self.graph.successors(g_position)))
             if change_direction:
-                new_direction = -direction
+                new_direction = self.reverse_direction(direction)
             # TODO : solve cases where there are several candidates (or none)
             if(len(candidates) == 0):
                 print("error : no successors and no predecessors for node ", g_position)
