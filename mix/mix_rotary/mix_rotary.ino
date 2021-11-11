@@ -1,11 +1,18 @@
 #include <PJONSoftwareBitBang.h>
 
-#define TYPE 'R' /* Rotary /**/
+//#define TYPE 'R' /* Rotary /**/
 //#define TYPE 'P' /* Potard /**/
 //#define TYPE 'L' /* Linear /**/
 //#define TYPE 'B' /* Button /**/
+//#define TYPE 'H' /* Horizontal Slider /**/
+#define TYPE 'V' /* Vertical Slider /**/
 
-#define NB_JACKS 5
+#if TYPE =='V' or TYPE =='H'
+  #define NB_JACKS 4 //shall be 6 later
+#else
+  #define NB_JACKS 5
+#endif
+
 #define NET_PIN 2
 #define DISCONNECT_DELAY 500
 
@@ -27,20 +34,45 @@ int current_pin = 100;
 PJONSoftwareBitBang jack_bus;
 PJONSoftwareBitBang main_bus;
 
+uint8_t jack_coordinate(int pin){
+  if ((TYPE == 'V') or (TYPE=='H')){
+      uint8_t pos,num;
+      pos = pin%2<<4;
+      num = int(pin/2); 
+      return pos | num;
+    }
+    else{
+      return pin;
+    }
+}
+
+void print_coordinate(int pin){
+  if ((TYPE == 'V') or (TYPE == 'H')){
+      Serial.print(TYPE);
+      Serial.print(pin%2);
+      Serial.print('N');
+      Serial.print(int(pin/2));
+    }
+    else{
+      Serial.print(pin);
+    }
+}
+
 void jack_receiver(uint8_t *payload, uint16_t length, const PJON_Packet_Info &info) {
   if (pairs[current_pin] != *payload) {
-    Serial.print(current_pin);
+    print_coordinate(current_pin);
     Serial.print(" <---> ");
     Serial.println(*payload);
 
     // Send the connection
-    unsigned int packet[4];
+    uint8_t packet[4];
     // Wich part of the controller
     packet[0] = TYPE;
     // Link command
     packet[1] = 'L';
     // Link coordinates
-    packet[2] = current_pin;
+    packet[2] = jack_coordinate(current_pin);
+    Serial.println(byte(packet[2]));
     packet[3] = *payload;
     //main_bus.send_packet_blocking('M', packet, 4);
   }
@@ -68,6 +100,7 @@ void setup() {
   jack_bus.set_id(100);
   jack_bus.begin();
   jack_bus.set_receiver(jack_receiver);
+
 
   // Set 
   main_bus.strategy.set_pin(NET_PIN);
@@ -104,18 +137,25 @@ void loop() {
       }
       // Read the value if connected
       else if (pairs[i] != 255) {
-        uint8_t value;
+        uint8_t value = 255;
         switch (TYPE) {
           case 'V':
+            if((i%2==1) and (plugged[i-1] == true) and (pairs[i]%5 == pairs[i-1]%5)){
+              value = analogRead(measure_pins[int((i-1)/2)]) / 4;
+            }
+            break;
           case 'H':
+            if((i%2==1) and (plugged[i-1] == true) and (pairs[i]/5 == pairs[i-1]/5)){
+              value = analogRead(measure_pins[int((i-1)/2)]) / 4;
+            }
+            break;
           case 'P':
             value = analogRead(measure_pins[i]) / 4;
             break;
           case 'B':
-            value = digitalRead(measure_pins[i]) == LOW ? 255 : 0;
+            value = digitalRead(measure_pins[i]) == LOW ? 254 : 0;
             break;
           case 'R':
-            value = 0;
             state[i] = digitalRead(measure_pins[i]);
             if (state[i] != laststate[i]){
               if (digitalRead(measure_pinsB[i])!=state[i]){
@@ -130,7 +170,7 @@ void loop() {
             break;
         }
 
-        if (((TYPE == 'R') and (value != 0)) or ((TYPE != 'R') and ( abs(((int16_t)value) - ((int16_t)values[i])) > 3))) {
+        if ((value!=255) and (abs(((int16_t)value) - ((int16_t)values[i])) > 3)) {
           values[i] = value;
 
           unsigned int packet[4];
@@ -139,13 +179,13 @@ void loop() {
           // Unlink command
           packet[1] = 'V';
           // Link coordinates
-          packet[2] = i;
+          packet[2] = jack_coordinate(i);
           packet[3] = pairs[i];
           //main_bus.send_packet_blocking('M', packet, 4);
 
           Serial.print(TYPE);
           Serial.print(" [");
-          Serial.print(i);
+          print_coordinate(i);
           Serial.print("]: ");
           Serial.println(value);
         }
@@ -160,11 +200,11 @@ void loop() {
       // Unlink command
       packet[1] = 'U';
       // Link coordinates
-      packet[2] = i;
+      packet[2] = jack_coordinate(i);
       packet[3] = pairs[i];
       //main_bus.send_packet_blocking('M', packet, 4);
 
-      Serial.print(i);
+      print_coordinate(i);
       Serial.print("   X   ");
       Serial.println(pairs[i]);
 
