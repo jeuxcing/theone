@@ -180,7 +180,7 @@ void loop() {
             break;
         }
 
-        if ((value!=255) and (abs(((int16_t)value) - ((int16_t)values[i])) > 3)) {
+        if ((value!=255) and ((abs(((int16_t)value) - ((int16_t)values[i])) > 3) or (TYPE=='R'))) {
           values[i] = value;
 
           unsigned int packet[4];
