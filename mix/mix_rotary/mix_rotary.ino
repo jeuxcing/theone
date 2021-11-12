@@ -83,20 +83,27 @@ void jack_receiver(uint8_t *payload, uint16_t length, const PJON_Packet_Info &in
 int detectRotation(int pin1, int pin2,int *lastEncoded){
   int MSB = digitalRead(pin1);
   int LSB = digitalRead(pin2); 
-
+  int result = 0;
   int encoded = (MSB << 1) |LSB; 
 
   int sum = (*lastEncoded << 2) | encoded;
   (*lastEncoded) = encoded; 
 
   if(sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) {
-    return 64; //Turn Right
+    result++;
   }
   if(sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000){
-    return 128; //Turn Left
+    result--;
   }
 
-  return 255;//No rotation
+  if(result > 0){
+    return 64; //Turn Right
+  }else if(result < 0){
+    return 128; //Turn Left
+  }
+  else{
+    return 255;//No rotation
+  }
 }
   
 void setup() {
