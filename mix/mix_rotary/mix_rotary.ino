@@ -27,8 +27,9 @@ unsigned int measure_pinsB[] = {A3, A4, A5}; //For the rotary, baby
 uint16_t values[] = {0, 0, 0, 0, 0};
 
 int rotatyState[5] = {0, 0, 0, 0, 0};
-int firstTime;
-int averageRotary;
+unsigned long rotaryFirstTime[5] ={0, 0, 0, 0, 0};
+int averageRotary[5]= {0, 0, 0, 0, 0};
+bool rotaryWaiting[5]= {false, false, false, false, false};
 
 int current_pin = 100;
 
@@ -134,8 +135,6 @@ void setup() {
   main_bus.set_id(TYPE);
   main_bus.begin();
 
-  firstTime = millis();
-
 }
 
 
@@ -180,27 +179,27 @@ void loop() {
             value = digitalRead(measure_pins[i]) == LOW ? 254 : 0;
             break;
           case 'R':
-            int currentTime = millis();
+            unsigned long currentTime = millis();
             int currentValue = detectRotation(measure_pins[i], measure_pinsB[i],&rotatyState[i]); 
-            if(currentValue == 255 && currentTime > firstTime + 100){
-              if(averageRotary >=96 ){
+            if(currentValue == 255 && currentTime > rotaryFirstTime[i] + 200 && rotaryWaiting[i]){
+              if(averageRotary[i] >=96 ){
                 value= 128;
               }else{
                 value = 64;
               }
+              rotaryWaiting[i] = false;
             }
 
             if(currentValue != 255){
-              if(currentTime > firstTime + 100){
-                firstTime = currentTime;
-                averageRotary = currentValue;
+              if(currentTime > rotaryFirstTime[i] + 200){
+                rotaryFirstTime[i] = currentTime;
+                averageRotary[i] = currentValue;
+                rotaryWaiting[i] = true;
               }else{
-                averageRotary = (averageRotary + currentValue) / 2;
+                averageRotary[i] = (averageRotary[i] + currentValue) / 2;
               }
             }
           
-           
-            
             break;
         }
 
