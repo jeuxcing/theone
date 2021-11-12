@@ -1,11 +1,11 @@
 #include <PJONSoftwareBitBang.h>
 
-//#define TYPE 'R' /* Rotary /**/
+#define TYPE 'R' /* Rotary /**/
 //#define TYPE 'P' /* Potard /**/
 //#define TYPE 'L' /* Linear /**/
 //#define TYPE 'B' /* Button /**/
 //#define TYPE 'H' /* Horizontal Slider /**/
-#define TYPE 'V' /* Vertical Slider /**/
+//#define TYPE 'V' /* Vertical Slider /**/
 
 #if TYPE =='V' or TYPE =='H'
   #define NB_JACKS 4 //shall be 6 later
@@ -26,8 +26,7 @@ unsigned int measure_pinsB[] = {A3, A4, A5}; //For the rotary, baby
 
 uint16_t values[] = {0, 0, 0, 0, 0};
 
-int laststate[5];
-int state[5];
+int rotatyState[5] = {0, 0, 0, 0, 0};
 
 int current_pin = 100;
 
@@ -80,6 +79,25 @@ void jack_receiver(uint8_t *payload, uint16_t length, const PJON_Packet_Info &in
   pairs[current_pin] = *payload;
   last_contact[current_pin] = millis();
 }
+
+int detectRotation(int pin1, int pin2,int *lastEncoded){
+  int MSB = digitalRead(pin1);
+  int LSB = digitalRead(pin2); 
+
+  int encoded = (MSB << 1) |LSB; 
+
+  int sum = (*lastEncoded << 2) | encoded;
+  (*lastEncoded) = encoded; 
+
+  if(sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) {
+    return 64; //Turn Right
+  }
+  if(sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000){
+    return 128; //Turn Left
+  }
+
+  return 255;//No rotation
+}
   
 void setup() {
   Serial.begin(115200);
@@ -107,11 +125,6 @@ void setup() {
   main_bus.set_id(TYPE);
   main_bus.begin();
 
-  laststate[0] = digitalRead(A0);
-  laststate[1] = digitalRead(A1);
-  laststate[2] = digitalRead(A2);
-  laststate[3] = digitalRead(A3);
-  laststate[4] = digitalRead(A4);
 }
 
 
@@ -156,17 +169,7 @@ void loop() {
             value = digitalRead(measure_pins[i]) == LOW ? 254 : 0;
             break;
           case 'R':
-            state[i] = digitalRead(measure_pins[i]);
-            if (state[i] != laststate[i]){
-              if (digitalRead(measure_pinsB[i])!=state[i]){
-                value = 64;
-              }
-              else {
-                value = 32;
-              }
-            }
-            laststate[i]=state[i];
-            
+            value = detectRotation(measure_pins[i], measure_pinsB[i],&rotatyState[i]);
             break;
         }
 
