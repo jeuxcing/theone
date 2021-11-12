@@ -27,6 +27,8 @@ unsigned int measure_pinsB[] = {A3, A4, A5}; //For the rotary, baby
 uint16_t values[] = {0, 0, 0, 0, 0};
 
 int rotatyState[5] = {0, 0, 0, 0, 0};
+int firstTime;
+int averageRotary;
 
 int current_pin = 100;
 
@@ -132,6 +134,8 @@ void setup() {
   main_bus.set_id(TYPE);
   main_bus.begin();
 
+  firstTime = millis();
+
 }
 
 
@@ -176,7 +180,27 @@ void loop() {
             value = digitalRead(measure_pins[i]) == LOW ? 254 : 0;
             break;
           case 'R':
-            value = detectRotation(measure_pins[i], measure_pinsB[i],&rotatyState[i]);
+            int currentTime = millis();
+            int currentValue = detectRotation(measure_pins[i], measure_pinsB[i],&rotatyState[i]); 
+            if(currentValue == 255 && currentTime > firstTime + 100){
+              if(averageRotary >=96 ){
+                value= 128;
+              }else{
+                value = 64;
+              }
+            }
+
+            if(currentValue != 255){
+              if(currentTime > firstTime + 100){
+                firstTime = currentTime;
+                averageRotary = currentValue;
+              }else{
+                averageRotary = (averageRotary + currentValue) / 2;
+              }
+            }
+          
+           
+            
             break;
         }
 
