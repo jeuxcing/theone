@@ -1,5 +1,6 @@
 #include <PJONSoftwareBitBang.h>
-#include <Adafruit_NeoPixel.h>
+#define FASTLED_INTERNAL
+#include <FastLED.h>
 
 
 // --- Change here to define the led strip type ---
@@ -23,10 +24,17 @@
 #endif
 
 #define NB_LEDS_LINE (NB_SEGMENTS * NB_LED_SEGMENT)
+//#define NB_LEDS_LINE 1
 
 
-int pins[5] = {2, 3, 5, 6, 7};
-Adafruit_NeoPixel lines[NB_LINES];
+//int pins[5] = {2, 3, 5, 6, 7};
+#define PIN0 2
+#define PIN1 3
+#define PIN2 5
+#define PIN3 6
+#define PIN4 7
+
+CRGB lines[NB_LINES][NB_LEDS_LINE];
 
 #define NET 12
 PJONSoftwareBitBang bus;
@@ -42,7 +50,7 @@ void modify_led(uint8_t * payload, uint8_t length) {
   uint8_t green = payload[4];
   uint8_t blue = payload[5];
 
-  lines[line_idx].setPixelColor(led_idx, red, green, blue);
+  lines[line_idx][led_idx].setRGB(red, green, blue);
   modified[line_idx] = true;
 }
 
@@ -56,7 +64,7 @@ void modify_segment(uint8_t * payload, uint8_t length) {
   uint8_t blue = payload[6];
 
   for (uint8_t i=start_led_idx ; i<= stop_led_idx ; i++) {
-    lines[line_idx].setPixelColor(i, red, green, blue);
+    lines[line_idx][i].setRGB(red, green, blue);
   }
   modified[line_idx] = true;
 }
@@ -64,12 +72,6 @@ void modify_segment(uint8_t * payload, uint8_t length) {
 
 void receiver_function(uint8_t * payload, uint16_t length, const PJON_Packet_Info &info) {
   //Serial.println("Packet received");
-  for (int i=0 ; i<length ; i++) {
-    Serial.print('[');
-    Serial.print(payload[i]);
-    Serial.print(']');
-  }
-  Serial.println();
 
   int remaining_msgs = 1;
 
@@ -98,14 +100,11 @@ void receiver_function(uint8_t * payload, uint16_t length, const PJON_Packet_Inf
 
 void setup() {
   // Init led strips
-  for (int lines_idx=0 ; lines_idx<NB_LINES ; lines_idx++) {
-    //lines[lines_idx] = Adafruit_NeoPixel(NB_LEDS_LINE, pins[lines_idx]);
-    lines[lines_idx].updateLength(NB_LEDS_LINE);
-    lines[lines_idx].setPin(pins[lines_idx]);
-    lines[lines_idx].begin();
-    lines[lines_idx].clear();
-    lines[lines_idx].show();
-  }
+  FastLED.addLeds<NEOPIXEL, PIN0>(lines[0], NB_LEDS_LINE);
+  FastLED.addLeds<NEOPIXEL, PIN1>(lines[1], NB_LEDS_LINE);
+  FastLED.addLeds<NEOPIXEL, PIN2>(lines[2], NB_LEDS_LINE);
+  FastLED.addLeds<NEOPIXEL, PIN3>(lines[3], NB_LEDS_LINE);
+  FastLED.addLeds<NEOPIXEL, PIN4>(lines[4], NB_LEDS_LINE);
 
   // Init network
   // Set the pin 12 as the communication pin
@@ -115,7 +114,6 @@ void setup() {
   // Define network callback
   bus.set_receiver(receiver_function);
 
-  Serial.begin(115200);
 }
 
 unsigned long previous_show = 0;
@@ -128,7 +126,7 @@ void loop() {
   if (current_time - previous_show > REFRESH_DELAY) {
     for (int line_idx=0 ; line_idx<NB_LINES ; line_idx++) {
       if (modified[line_idx]) {
-        lines[line_idx].show();
+        FastLED.show();
         modified[line_idx] = false;
       }
     }
