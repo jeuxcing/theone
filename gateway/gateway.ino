@@ -1,3 +1,4 @@
+#define SWBB_MODE 4
 #include <PJONSoftwareBitBang.h>
 
 
@@ -27,9 +28,9 @@ void setup() {
 } 
 
 void loop() {
+  while (1)
     if (Serial.available())
       read_serial();
-    delay(1);
 }
 
 
@@ -95,12 +96,11 @@ void read_serial() {
   buffer[0] = msg_size;
 
   // Send the packet on the 1-Wire
-  uint16_t status = bus.send_packet_blocking(dest, buffer+1, msg_size-1);
-  //if (status == PJON_ACK) {
-    Serial.write(1);
-    Serial.write(0xFF);
-    Serial.flush();
-  //}
+  uint16_t status = 0xFFFF;
+  status = bus.send_packet_blocking(dest, buffer+1, msg_size-1);
+  Serial.write(1);
+  Serial.write(0xFF);
+  Serial.flush();
 }
 
 // Translate the segment command
@@ -128,6 +128,7 @@ void modify_light(uint8_t * src, uint8_t * dest) {
   dest[4] = src[6];
   dest[5] = src[7];
   dest[6] = src[8];
+  //debug_print(5, &dest[2]);
 }
 
 
