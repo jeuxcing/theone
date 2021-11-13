@@ -1,3 +1,4 @@
+#define SWBB_MODE 4
 #include <PJONSoftwareBitBang.h>
 #define FASTLED_INTERNAL
 #include <FastLED.h>
@@ -13,7 +14,7 @@
 
 
 #define REFRESH_DELAY 5
-#define NB_LINES 5
+#define NB_LINES 3
 
 #if NET_ID == 'R'
   #define NB_SEGMENTS 5
@@ -24,7 +25,6 @@
 #endif
 
 #define NB_LEDS_LINE (NB_SEGMENTS * NB_LED_SEGMENT)
-//#define NB_LEDS_LINE 1
 
 
 //int pins[5] = {2, 3, 5, 6, 7};
@@ -50,6 +50,11 @@ void modify_led(uint8_t * payload, uint8_t length) {
   uint8_t green = payload[4];
   uint8_t blue = payload[5];
 
+  Serial.print(line_idx);Serial.print(",");
+  Serial.print(led_idx);Serial.print(" ");
+  Serial.print(red);Serial.print(" ");
+  Serial.print(green);Serial.print(" ");
+  Serial.print(blue);Serial.println();
   lines[line_idx][led_idx].setRGB(red, green, blue);
   modified[line_idx] = true;
 }
@@ -114,6 +119,7 @@ void setup() {
   // Define network callback
   bus.set_receiver(receiver_function);
 
+  Serial.begin(115200);
 }
 
 unsigned long previous_show = 0;
