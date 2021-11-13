@@ -17,7 +17,7 @@ class Networks:
 
     def __init__(self):
         # Init connections to the wall
-        self.wall = SerialManager(Networks.wall_serial, verbose=True)
+        self.wall = SerialManager(Networks.wall_serial)
 
         # Init connections to the controller
         self.ctrl = SerialManager(Networks.ctrl_serial)
