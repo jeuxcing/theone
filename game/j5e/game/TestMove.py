@@ -55,6 +55,13 @@ class TestMove(unittest.TestCase):
         goal = ("column", 0, 1, 0)
         self.gs.set_section_status("column",0,1,2,2,0)
         self.go(start,goal,Direction.FORWARD,1)
+
+
+    def test_line_001_to_col_101_reverse_ring_01(self):
+        start = ("line", 0, 0, 1)
+        goal = ("column", 1, 0, 1)
+        self.gs.change_direction_segment("ring", 0, 1)
+        self.go(start, goal, Direction.FORWARD, 100)
         
 if __name__ == '__main__':
     unittest.main()

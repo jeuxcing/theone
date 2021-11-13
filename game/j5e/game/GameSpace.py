@@ -22,6 +22,15 @@ class Direction(Enum):
     RING_BACKWARD = -2
 
 
+class Position:
+
+    def __init__(self, t, x, y, p):
+        self.segment_type = t
+        self.seg_pos_x = x
+        self.seg_pos_y = y
+        self.pos_in_seg = p
+
+
 class GameSpace:
 
     def __init__(self):
@@ -114,6 +123,24 @@ class GameSpace:
         graph_ind_end = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_end)
         for i in range(graph_ind_start, graph_ind_end+1):
             self.graph.nodes[i]['alive'] = status
+
+
+    def change_direction_segment(self, segment_type, segment_pos_x, segment_pos_y):
+        if segment_type == 'ring':
+            # Reverse internal edges
+            edges_to_remove = []
+            edges_to_add = []
+            for z in range(self.n_leds_ring):
+                node_ind = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, z)
+                succs = self.graph.successors(node_ind)
+                for succ in succs:
+                    if self.graph.nodes[succ]['type'] == segment_type:
+                        edges_to_remove.append((node_ind, succ))
+                        edges_to_add.append((succ, node_ind))
+            for e in edges_to_remove:
+                self.graph.remove_edge(e[0], e[1])
+            for e in edges_to_add:
+                self.graph.add_edge(e[0], e[1])
         
         
     def to_graph_node_index(self, segment_type, segment_pos_x, segment_pos_y, position_in_seg):
