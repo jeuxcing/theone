@@ -1,7 +1,7 @@
 import time
 import networkx as nx
 from enum import Enum
-from game.j5e.hardware.led_strip import Grid, GridDims as gd
+from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
 
 # Not used
 class Node:
@@ -30,39 +30,18 @@ class GameSpace:
     #def init_graph(self, grid, n_leds_segment, n_leds_ring):
         #self.grid = grid
     def init_graph(self, grid_size, n_leds_segment, n_leds_ring):
+        self.node_index = 0;
         self.grid_size = grid_size
         self.n_leds_segment = n_leds_segment
         self.n_leds_ring = n_leds_ring
         print("Initializing graph...")
         # Create nodes
-        node_index = 0;
         # Lines
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(n_leds_segment):
-                    #n = Node()
-                    #n.create('line', line_idx, seg_idx, led_idx)
-                    #self.graph.add(n)
-                    self.graph.add_node(node_index)
-                    self.graph.nodes[node_index]['type'] = "line"
-                    self.graph.nodes[node_index]['alive'] = 1
-                    node_index += 1
+        self.create_nodes("line", grid_size, grid_size-1, n_leds_segment)
         # Columns
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(n_leds_segment):
-                    self.graph.add_node(node_index)
-                    self.graph.nodes[node_index]['type'] = "column"
-                    self.graph.nodes[node_index]['alive'] = 1
-                    node_index += 1
+        self.create_nodes("column", grid_size, grid_size-1, n_leds_segment)
         # Rings
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size):
-                for led_idx in range(n_leds_ring):
-                    self.graph.add_node(node_index)
-                    self.graph.nodes[node_index]['type'] = "ring"
-                    self.graph.nodes[node_index]['alive'] = 1
-                    node_index += 1
+        self.create_nodes("ring", grid_size, grid_size, n_leds_ring)
         # Create edges
         # Within lines segments
         for line_idx in range(grid_size):
@@ -115,6 +94,18 @@ class GameSpace:
         #print("Neighbors of node 290 = ", list(self.graph.neighbors(290)))
         #print("Neighbors of node 22 = ", list(self.graph.neighbors(22)))
         #print("Neighbors of node 22 = ", list(self.graph.neighbors(23)))
+
+    def create_nodes(self,segment_type,nb_Lines,nb_Segments,n_leds):
+        for line_idx in range(nb_Lines):
+            for seg_idx in range(nb_Segments):
+                for led_idx in range(n_leds):
+                    #n = Node()
+                    #n.create('line', line_idx, seg_idx, led_idx)
+                    #self.graph.add(n)
+                    self.graph.add_node(self.node_index)
+                    self.graph.nodes[self.node_index]['type'] = segment_type
+                    self.graph.nodes[self.node_index]['alive'] = 1
+                    self.node_index += 1
 
 
     # Assumes positions for start and end are valid

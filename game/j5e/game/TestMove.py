@@ -1,6 +1,7 @@
 import unittest
 from game.j5e.game.Agents import Lemming, Trap
 from game.j5e.game.GameSpace import GameSpace, Direction
+from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
 
 class TestMove(unittest.TestCase):
 

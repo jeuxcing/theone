@@ -1,6 +1,7 @@
 from game.j5e.game.Timer import Timer
 from game.j5e.game.Agents import Lemming, Trap
 from game.j5e.game.GameSpace import GameSpace
+from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
 
 if __name__ == "__main__":
     #stopFlag = Event()
@@ -8,10 +9,10 @@ if __name__ == "__main__":
     timer = Timer()
     gs = GameSpace()
     gs.init_graph(3, 24, 12)
-    pos1 = ("line", 0, 0, 0)
+    pos1 = (GridDims.ROW, 0, 0, 0)
     pos2 = ("ring", 0, 1, 0)
     #goal = ("ring", 0, 1, 11) 
-    goal = ("line", 0, 1, 11)
+    goal = (GridDims.ROW, 0, 1, 11)
     timer.add(Lemming(1, "Lemmiwings",pos1, 1, goal, gs))
     timer.add(Lemming(2, "Octodon",pos2, 1, goal, gs))
     #timer.add(Trap(3, "une porte",4))
