@@ -22,6 +22,15 @@ class Direction(Enum):
     RING_BACKWARD = -2
 
 
+class Position:
+
+    def __init__(self, t, x, y, p):
+        self.segment_type = t
+        self.seg_pos_x = x
+        self.seg_pos_y = y
+        self.pos_in_seg = p
+
+
 class GameSpace:
 
     def __init__(self):
@@ -36,38 +45,13 @@ class GameSpace:
         self.n_leds_ring = n_leds_ring
         print("Initializing graph...")
         # Create nodes
-        # Lines
         self.create_nodes("line", grid_size, grid_size-1, n_leds_segment)
-        # Columns
         self.create_nodes("column", grid_size, grid_size-1, n_leds_segment)
-        # Rings
         self.create_nodes("ring", grid_size, grid_size, n_leds_ring)
         # Create edges
-        # Within lines segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(1, n_leds_segment):
-                    i = self.to_graph_node_index('line', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('line', line_idx, seg_idx, led_idx)
-                    #print("i = ", i, " ; j = ", j)
-                    self.graph.add_edge(i, j)
-        # Within columns segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(1, n_leds_segment):
-                    i = self.to_graph_node_index('column', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('column', line_idx, seg_idx, led_idx)
-                    self.graph.add_edge(i, j)
-        # Within rings segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size):
-                for led_idx in range(1, n_leds_ring):
-                    i = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx)
-                    self.graph.add_edge(i, j)
-                led_end = self.to_graph_node_index('ring', line_idx, seg_idx, n_leds_ring-1)
-                led_start = self.to_graph_node_index('ring', line_idx, seg_idx, 0)
-                self.graph.add_edge(led_end, led_start)
+        self.create_edges_within("line",grid_size,grid_size-1,n_leds_segment)
+        self.create_edges_within("column",grid_size,grid_size-1,n_leds_segment)
+        self.create_edges_within("ring",grid_size,grid_size,n_leds_ring)
              
         # Lines and rings
         for line_idx in range(grid_size):
@@ -107,13 +91,44 @@ class GameSpace:
                     self.graph.nodes[self.node_index]['alive'] = 1
                     self.node_index += 1
 
-
+    def create_edges_within(self,segment_type,nb_Lines,nb_Segments,n_leds):
+        for line_idx in range(nb_Lines):
+            for seg_idx in range(nb_Segments):
+                for led_idx in range(1, n_leds):
+                    i = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx-1)
+                    j = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx)
+                    #print("i = ", i, " ; j = ", j)
+                    self.graph.add_edge(i, j)
+                if (segment_type=="ring"):
+                    led_end = self.to_graph_node_index('ring', line_idx, seg_idx, n_leds-1)
+                    led_start = self.to_graph_node_index('ring', line_idx, seg_idx, 0)
+                    self.graph.add_edge(led_end, led_start)
+                        
+                    
     # Assumes positions for start and end are valid
     def set_section_status(self, segment_type, segment_pos_x, segment_pos_y, led_start, led_end, status):
         graph_ind_start = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_start)
         graph_ind_end = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_end)
         for i in range(graph_ind_start, graph_ind_end+1):
             self.graph.nodes[i]['alive'] = status
+
+
+    def change_direction_segment(self, segment_type, segment_pos_x, segment_pos_y):
+        if segment_type == 'ring':
+            # Reverse internal edges
+            edges_to_remove = []
+            edges_to_add = []
+            for z in range(self.n_leds_ring):
+                node_ind = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, z)
+                succs = self.graph.successors(node_ind)
+                for succ in succs:
+                    if self.graph.nodes[succ]['type'] == segment_type:
+                        edges_to_remove.append((node_ind, succ))
+                        edges_to_add.append((succ, node_ind))
+            for e in edges_to_remove:
+                self.graph.remove_edge(e[0], e[1])
+            for e in edges_to_add:
+                self.graph.add_edge(e[0], e[1])
         
         
     def to_graph_node_index(self, segment_type, segment_pos_x, segment_pos_y, position_in_seg):
