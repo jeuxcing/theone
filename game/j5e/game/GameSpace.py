@@ -45,38 +45,13 @@ class GameSpace:
         self.n_leds_ring = n_leds_ring
         print("Initializing graph...")
         # Create nodes
-        # Lines
         self.create_nodes("line", grid_size, grid_size-1, n_leds_segment)
-        # Columns
         self.create_nodes("column", grid_size, grid_size-1, n_leds_segment)
-        # Rings
         self.create_nodes("ring", grid_size, grid_size, n_leds_ring)
         # Create edges
-        # Within lines segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(1, n_leds_segment):
-                    i = self.to_graph_node_index('line', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('line', line_idx, seg_idx, led_idx)
-                    #print("i = ", i, " ; j = ", j)
-                    self.graph.add_edge(i, j)
-        # Within columns segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                for led_idx in range(1, n_leds_segment):
-                    i = self.to_graph_node_index('column', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('column', line_idx, seg_idx, led_idx)
-                    self.graph.add_edge(i, j)
-        # Within rings segments
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size):
-                for led_idx in range(1, n_leds_ring):
-                    i = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx-1)
-                    j = self.to_graph_node_index('ring', line_idx, seg_idx, led_idx)
-                    self.graph.add_edge(i, j)
-                led_end = self.to_graph_node_index('ring', line_idx, seg_idx, n_leds_ring-1)
-                led_start = self.to_graph_node_index('ring', line_idx, seg_idx, 0)
-                self.graph.add_edge(led_end, led_start)
+        self.create_edges_within("line",grid_size,grid_size-1,n_leds_segment)
+        self.create_edges_within("column",grid_size,grid_size-1,n_leds_segment)
+        self.create_edges_within("ring",grid_size,grid_size,n_leds_ring)
              
         # Lines and rings
         for line_idx in range(grid_size):
@@ -116,7 +91,20 @@ class GameSpace:
                     self.graph.nodes[self.node_index]['alive'] = 1
                     self.node_index += 1
 
-
+    def create_edges_within(self,segment_type,nb_Lines,nb_Segments,n_leds):
+        for line_idx in range(nb_Lines):
+            for seg_idx in range(nb_Segments):
+                for led_idx in range(1, n_leds):
+                    i = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx-1)
+                    j = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx)
+                    #print("i = ", i, " ; j = ", j)
+                    self.graph.add_edge(i, j)
+                if (segment_type=="ring"):
+                    led_end = self.to_graph_node_index('ring', line_idx, seg_idx, n_leds-1)
+                    led_start = self.to_graph_node_index('ring', line_idx, seg_idx, 0)
+                    self.graph.add_edge(led_end, led_start)
+                        
+                    
     # Assumes positions for start and end are valid
     def set_section_status(self, segment_type, segment_pos_x, segment_pos_y, led_start, led_end, status):
         graph_ind_start = self.to_graph_node_index(segment_type, segment_pos_x, segment_pos_y, led_start)
