@@ -1,4 +1,3 @@
-import time
 import networkx as nx
 from enum import Enum
 from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
@@ -14,25 +13,20 @@ class Node:
         self.seg_pos_y = segment_pos_y
         self.pos_in_seg = position_in_seg
 
-
 class Direction(Enum):
     FORWARD = 1
     BACKWARD = -1
     RING_FORWARD = 2
     RING_BACKWARD = -2
 
-
 class Position:
-
     def __init__(self, t, x, y, p):
         self.segment_type = t
         self.seg_pos_x = x
         self.seg_pos_y = y
         self.pos_in_seg = p
 
-
 class GameSpace:
-
     def __init__(self):
         self.graph = nx.DiGraph()
         
@@ -45,13 +39,13 @@ class GameSpace:
         self.n_leds_ring = n_leds_ring
         print("Initializing graph...")
         # Create nodes
-        self.create_nodes("line", grid_size, grid_size-1, n_leds_segment)
-        self.create_nodes("column", grid_size, grid_size-1, n_leds_segment)
-        self.create_nodes("ring", grid_size, grid_size, n_leds_ring)
+        self.create_nodes("line")
+        self.create_nodes("column")
+        self.create_nodes("ring")
         # Create edges
-        self.create_edges_within("line",grid_size,grid_size-1,n_leds_segment)
-        self.create_edges_within("column",grid_size,grid_size-1,n_leds_segment)
-        self.create_edges_within("ring",grid_size,grid_size,n_leds_ring)
+        self.create_edges_within("line")
+        self.create_edges_within("column")
+        self.create_edges_within("ring")
              
         # Lines and rings
         for line_idx in range(grid_size):
@@ -79,9 +73,14 @@ class GameSpace:
         #print("Neighbors of node 22 = ", list(self.graph.neighbors(22)))
         #print("Neighbors of node 22 = ", list(self.graph.neighbors(23)))
 
-    def create_nodes(self,segment_type,nb_Lines,nb_Segments,n_leds):
-        for line_idx in range(nb_Lines):
-            for seg_idx in range(nb_Segments):
+    def get_nb_lines_segments_leds(self,segment_type):
+        return (self.grid_size,self.grid_size,self.n_leds_ring) if segment_type=="ring" \
+        else (self.grid_size,self.grid_size-1,self.n_leds_segment)
+    
+    def create_nodes(self,segment_type):
+        nb_lines,nb_segments,n_leds = self.get_nb_lines_segments_leds(segment_type)
+        for line_idx in range(nb_lines):
+            for seg_idx in range(nb_segments):
                 for led_idx in range(n_leds):
                     #n = Node()
                     #n.create('line', line_idx, seg_idx, led_idx)
@@ -91,9 +90,10 @@ class GameSpace:
                     self.graph.nodes[self.node_index]['alive'] = 1
                     self.node_index += 1
 
-    def create_edges_within(self,segment_type,nb_Lines,nb_Segments,n_leds):
-        for line_idx in range(nb_Lines):
-            for seg_idx in range(nb_Segments):
+    def create_edges_within(self,segment_type):
+        nb_lines,nb_segments,n_leds = self.get_nb_lines_segments_leds(segment_type)
+        for line_idx in range(nb_lines):
+            for seg_idx in range(nb_segments):
                 for led_idx in range(1, n_leds):
                     i = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx-1)
                     j = self.to_graph_node_index(segment_type, line_idx, seg_idx, led_idx)
@@ -135,22 +135,16 @@ class GameSpace:
         #print("Computing node_index from coords ", segment_pos_x, " / ", segment_pos_y, " / ", position_in_seg)
         n_leds_per_type = self.grid_size * (self.grid_size-1) * self.n_leds_segment
         type_offset = -1
-        graph_node_index = -1
+        nb_segments,n_leds = self.get_nb_lines_segments_leds(segment_type)[1:]
         if segment_type == 'line':
             type_offset = 0
-            graph_node_index = type_offset*n_leds_per_type \
-            + (segment_pos_x * (self.grid_size-1) + segment_pos_y) * self.n_leds_segment \
-            + position_in_seg
         elif segment_type == 'column':
             type_offset = 1
-            graph_node_index = type_offset*n_leds_per_type \
-            + (segment_pos_x * (self.grid_size-1) + segment_pos_y) * self.n_leds_segment \
-            + position_in_seg
         elif segment_type == 'ring':
             type_offset = 2
-            graph_node_index = type_offset*n_leds_per_type \
-            + (segment_pos_x * self.grid_size + segment_pos_y) * self.n_leds_ring \
-            + position_in_seg
+        graph_node_index = type_offset*n_leds_per_type \
+        + (segment_pos_x * nb_segments + segment_pos_y) * n_leds \
+        + position_in_seg
         #print("=> ", graph_node_index)
         return graph_node_index
         
@@ -160,25 +154,18 @@ class GameSpace:
         type_offset = graph_node_index // n_leds_per_type
         pos_in_type = graph_node_index % n_leds_per_type
         strip_type = ''
-        segment_pos_x = segment_pos_y = position_in_seg = -1
         if type_offset == 0:
             strip_type = 'line'
-            segment_pos_x = pos_in_type // ((self.grid_size-1) * self.n_leds_segment)
-            pos_in_set = pos_in_type % ((self.grid_size-1) * self.n_leds_segment)
-            segment_pos_y = pos_in_set // self.n_leds_segment
-            position_in_seg = pos_in_set % self.n_leds_segment
         elif type_offset == 1:
             strip_type = 'column'
-            segment_pos_x = pos_in_type // ((self.grid_size-1) * self.n_leds_segment)
-            pos_in_set = pos_in_type % ((self.grid_size-1) * self.n_leds_segment)
-            segment_pos_y = pos_in_set // self.n_leds_segment
-            position_in_seg = pos_in_set % self.n_leds_segment
         elif type_offset == 2:
             strip_type = 'ring'
-            segment_pos_x = pos_in_type // ((self.grid_size) * self.n_leds_ring)
-            pos_in_set = pos_in_type % ((self.grid_size) * self.n_leds_ring)
-            segment_pos_y = pos_in_set // self.n_leds_ring
-            position_in_seg = pos_in_set % self.n_leds_ring
+        nb_segments,n_leds = self.get_nb_lines_segments_leds(strip_type)[1:]
+        segment_pos_x = pos_in_type // (nb_segments * n_leds)
+        pos_in_set = pos_in_type % (nb_segments * n_leds)
+        segment_pos_y = pos_in_set // n_leds
+        position_in_seg = pos_in_set % n_leds
+
         return (strip_type, segment_pos_x, segment_pos_y, position_in_seg)
 
 

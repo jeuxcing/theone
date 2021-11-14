@@ -95,6 +95,6 @@ class Level:
 
 # Quick tests when calling the module from 'theone' root folder
 lev = Level()
-lev.set_config_from_json('game/j5e/game/levels/level_1.json')
+lev.set_config_from_json('levels/level_1.json')
 print("Done")
 
