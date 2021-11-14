@@ -37,7 +37,7 @@ if __name__ == "__main__":
     hypervisor = Hypervisor()
     hypervisor.start()
     print("Game started")
-    test(hypervisor.grid)
+    # test(hypervisor.grid)
 
     signal.pause()
 

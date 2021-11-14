@@ -1,4 +1,4 @@
-#define SWBB_MODE 4
+//#define SWBB_MODE 4
 #include <PJONSoftwareBitBang.h>
 
 
@@ -9,16 +9,19 @@
 PJONSoftwareBitBang bus;
 
 
-void cmd_handler(uint8_t * payload, uint16_t length, const PJON_Packet_Info &info);
+void cmd_handler(uint8_t * payload, uint16_t length, const PJON_Packet_Info &info) {
+  Serial.println("recv");
+  Serial.write((uint8_t)(length+1));
+  for (int i=0 ; i<length ; i++)
+    Serial.write(payload[i]);
+  Serial.flush();/**/
+}
+
 void read_serial();
 
 void setup() {
   // Serial Init
   Serial.begin(115200);
-
-  // Led init
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
 
   // Bus init
   bus.strategy.set_pin(NET_PIN);
@@ -28,9 +31,11 @@ void setup() {
 } 
 
 void loop() {
-  while (1)
+  while (1) {
     if (Serial.available())
       read_serial();
+    bus.receive();
+  }
 }
 
 
@@ -129,9 +134,4 @@ void modify_light(uint8_t * src, uint8_t * dest) {
   dest[5] = src[7];
   dest[6] = src[8];
   //debug_print(5, &dest[2]);
-}
-
-
-void cmd_handler(uint8_t * payload, uint16_t length, const PJON_Packet_Info &info) {
-  // TODO  
 }

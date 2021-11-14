@@ -1,4 +1,4 @@
-#define SWBB_MODE 4
+//#define SWBB_MODE 4
 #include <PJONSoftwareBitBang.h>
 #define FASTLED_INTERNAL
 #include <FastLED.h>

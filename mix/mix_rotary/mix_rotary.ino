@@ -1,7 +1,8 @@
+//#define SWBB_MODE 4
 #include <PJONSoftwareBitBang.h>
 
-#define TYPE 'R' /* Rotary /**/
-//#define TYPE 'P' /* Potard /**/
+//#define TYPE 'R' /* Rotary /**/
+#define TYPE 'P' /* Potard /**/
 //#define TYPE 'L' /* Linear /**/
 //#define TYPE 'B' /* Button /**/
 //#define TYPE 'H' /* Horizontal Slider /**/
@@ -38,14 +39,13 @@ PJONSoftwareBitBang main_bus;
 
 uint8_t jack_coordinate(int pin){
   if ((TYPE == 'V') or (TYPE=='H')){
-      uint8_t pos,num;
-      pos = pin%2<<4;
-      num = int(pin/2); 
-      return pos | num;
-    }
-    else{
-      return pin;
-    }
+    uint8_t pos,num;
+    pos = pin%2<<4;
+    num = int(pin/2); 
+    return pos | num;
+  } else{
+    return pin;
+  }
 }
 
 void print_coordinate(int pin){
@@ -67,16 +67,17 @@ void jack_receiver(uint8_t *payload, uint16_t length, const PJON_Packet_Info &in
     Serial.println(*payload);
 
     // Send the connection
-    uint8_t packet[4];
-    // Wich part of the controller
-    packet[0] = TYPE;
+    uint8_t packet[3];
     // Link command
-    packet[1] = 'L';
-    // Link coordinates
-    packet[2] = jack_coordinate(current_pin);
-    Serial.println(byte(packet[2]));
-    packet[3] = *payload;
-    //main_bus.send_packet_blocking('M', packet, 4);
+    packet[0] = 'L';
+    // Wich part of the controller
+    packet[1] = TYPE & 0b00011111;
+    packet[1] |= jack_coordinate(current_pin) << 5;
+    packet[2] = *payload;
+    Serial.print(packet[0]);Serial.print(" ");
+    Serial.print(packet[1]);Serial.print(" ");
+    Serial.print(packet[2]);Serial.println();
+    main_bus.send_packet_blocking('M', packet, 3);
   }
   // Register pair
   pairs[current_pin] = *payload;
@@ -206,16 +207,22 @@ void loop() {
         if ((value!=255) and ((abs(((int16_t)value) - ((int16_t)values[i])) > 3) or (TYPE=='R'))) {
           values[i] = value;
 
-          unsigned int packet[4];
+          uint8_t packet[3];
+          // Value command
+          packet[0] = 'V';
           // Wich part of the controller
-          packet[0] = TYPE;
-          // Unlink command
-          packet[1] = 'V';
-          // Link coordinates
-          packet[2] = jack_coordinate(i);
-          packet[3] = pairs[i];
-          //main_bus.send_packet_blocking('M', packet, 4);
+          packet[1] = TYPE & 0b00011111;
+          packet[1] |= jack_coordinate(i) << 5;
+          // Value
+          packet[2] = value;
+          main_bus.send_packet_blocking('M', packet, 3);
 
+          Serial.println(TYPE);
+          Serial.println(jack_coordinate(i));
+          Serial.println(value);
+          Serial.print(packet[0]);Serial.print(" ");
+          Serial.print(packet[1]);Serial.print(" ");
+          Serial.print(packet[2]);Serial.println();
           Serial.print(TYPE);
           Serial.print(" [");
           print_coordinate(i);
@@ -228,14 +235,13 @@ void loop() {
     // Send disconnection info
     if (to_disconnect) {
       unsigned int packet[4];
+      packet[0] = 'U';
       // Wich part of the controller
-      packet[0] = TYPE;
-      // Unlink command
-      packet[1] = 'U';
+      packet[1] = TYPE & 0b00011111;
+      packet[1] |= jack_coordinate(current_pin) << 5;
       // Link coordinates
-      packet[2] = jack_coordinate(i);
-      packet[3] = pairs[i];
-      //main_bus.send_packet_blocking('M', packet, 4);
+      packet[2] = pairs[i];
+      main_bus.send_packet_blocking('M', packet, 3);
 
       print_coordinate(i);
       Serial.print("   X   ");
