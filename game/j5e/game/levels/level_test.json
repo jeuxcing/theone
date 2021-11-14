@@ -1,0 +1,38 @@
+{
+    "level": {
+         "dimensions": {
+            "grid_size": 3,
+            "n_leds_segment": 24,
+            "n_leds_ring": 12
+        },
+        "start_point": {
+            "segment_type": "line",
+            "seg_pos_x": 0,
+            "seg_pos_y": 0,
+            "pos_in_seg": 1
+        },
+        "end_point": {
+            "segment_type": "line",
+            "seg_pos_x": 0,
+            "seg_pos_y": 1,
+            "pos_in_seg": 1
+        },
+        "hazards": {
+            "walls": [
+            ],
+            "reverse_rings": [
+                {
+                    "seg_pos_x": 0,
+                    "seg_pos_y": 1
+                }
+            ]
+        }
+    },
+    "agents": {
+        "lemmings": {
+            "number_spawns": 1,
+            "time_between_spawns": 5,
+            "number_to_win": 1
+        }
+    }
+}

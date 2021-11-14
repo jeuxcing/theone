@@ -86,10 +86,10 @@ class Level:
         for rr in self.config.reverse_rings:
             self.gamespace.change_direction_segment(rr.segment_type, rr.seg_pos_x, rr.seg_pos_y)
 
-    # TODO : setup from agents in config
     def setup_agents(self):
         self.agent=Lemming(1, "Lemmiwings",self.config.start_point.getCoord(), Direction.FORWARD, self.config.end_point.getCoord(), self.gamespace)
-
+        # TODO : setup from agents in config, only one for the moment
+        
 
 # Quick tests when calling the module from 'theone' root folder
 

@@ -20,6 +20,15 @@ class TestLevel(unittest.TestCase):
             turns+=1
         self.assertEqual(agent.goal,agent.pos)
 
+    def test_level_test_fail_without_reverse(self):
+        self.level.set_config_from_json("levels/level_test.json")
+        turns=0
+        agent = self.level.agent
+        while agent.active and turns<100:
+            #print(agent.dir)
+            agent.go()
+            turns+=1
+        self.assertNotEqual(agent.goal,agent.pos)
         
 if __name__ == '__main__':
     unittest.main()
