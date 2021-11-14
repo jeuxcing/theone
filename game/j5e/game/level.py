@@ -1,7 +1,8 @@
+import time
 import json
-from game.j5e.game.GameSpace import GameSpace, Position
+from game.j5e.game.GameSpace import GameSpace, Position,Direction
 from game.j5e.hardware.led_strip import Grid, GridDims
-
+from game.j5e.game.Agents import Lemming
 
 class Config:
 
@@ -63,13 +64,11 @@ class Config:
                 self.time_between_spawns_lemmings = json_agents['lemmings']['time_between_spawns']
                 self.n_lemmings_to_win = json_agents['lemmings']['number_to_win']
 
-
 class Level:
 
     def __init__(self):
         self.gamespace = GameSpace()
         self.config = Config()
-
 
     def set_config_from_json(self, json_file_path):
         self.config.load_config_from_json(json_file_path)
@@ -89,12 +88,12 @@ class Level:
 
     # TODO : setup from agents in config
     def setup_agents(self):
-        return
-
+        self.agent=Lemming(1, "Lemmiwings",self.config.start_point.getCoord(), Direction.FORWARD, self.config.end_point.getCoord(), self.gamespace)
 
 
 # Quick tests when calling the module from 'theone' root folder
-lev = Level()
-lev.set_config_from_json('levels/level_1.json')
-print("Done")
+
+#lev = Level()
+#lev.set_config_from_json('game/j5e/game/levels/level_1.json')
+#print("Done")
 

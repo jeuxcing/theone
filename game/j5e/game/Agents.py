@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 #Autonomous elements
 class Agent:
     def __init__(self, period, name, pos, game):

@@ -25,6 +25,9 @@ class Position:
         self.seg_pos_x = x
         self.seg_pos_y = y
         self.pos_in_seg = p
+        
+    def getCoord(self):
+        return (self.segment_type,self.seg_pos_x,self.seg_pos_y,self.pos_in_seg)
 
 class GameSpace:
     def __init__(self):
