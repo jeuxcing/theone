@@ -67,7 +67,6 @@ class SerialManager(Thread):
                 self.outbox[dest] = self.outbox[dest][:-1]
                 self.outbox[dest].append(bytes(last_msg))
             else:
-                print("large message")
                 self.outbox[dest].append(bytes(msg))
                 self.outbox_size += 1
         self.outbox_mutex.release()
@@ -104,6 +103,9 @@ class SerialManager(Thread):
                     self.serial = serial.Serial(f"/dev/{self.arduinos[self.serial_id]}", baudrate=115200)
                 except serial.serialutil.SerialException:
                     self.serial = None
+                    if self.verbose:
+                        print(f"T Arduino {self.serial_id} unreachable")
+                    time.sleep(1)
             # Communicate with arduinos
             else:
                 try:
@@ -142,9 +144,10 @@ class SerialManager(Thread):
 
                     while len(self.inbox) > 0:
                         size = int.from_bytes(self.inbox[0], "big")
-                        if size <= len(self.inbox) - 1:
-                            msg = self.inbox[1:size+1]
-                            self.inbox = self.inbox[size+1:]
+
+                        if size <= len(self.inbox):
+                            msg = self.inbox[1:size]
+                            self.inbox = self.inbox[size:]
 
                             if self.verbose:
                                 print("T recv:", msg)

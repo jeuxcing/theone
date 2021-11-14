@@ -11,8 +11,7 @@ class Networks:
 
     # The following 2 values needs to be changed regarding the arduino used
     wall_serial = "758333139333512021D2"
-    ctrl_serial = "POUET"
-    # ctrl_serial = "758303339383511090A1"
+    ctrl_serial = "75833313933351104032"
 
 
     def __init__(self):
@@ -20,7 +19,7 @@ class Networks:
         self.wall = SerialManager(Networks.wall_serial)
 
         # Init connections to the controller
-        self.ctrl = SerialManager(Networks.ctrl_serial)
+        self.ctrl = SerialManager(Networks.ctrl_serial, verbose=True)
 
         # run threads
         self.wall.start()
