@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 53.899998 37"
+   height="37mm"
+   width="53.899998mm"
+   sodipodi:docname="denier etage.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     id="namedview11"
+     showgrid="false"
+     inkscape:zoom="3.1746822"
+     inkscape:cx="54.544826"
+     inkscape:cy="64.371156"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg8"
+     fit-margin-top="3"
+     fit-margin-left="3"
+     fit-margin-right="3"
+     fit-margin-bottom="3"
+     inkscape:document-rotation="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showguides="false" />
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     id="rect823-2"
+     style="fill:none;fill-opacity:1;stroke:#00ff00;stroke-width:0.2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="m 3.216692,3.049996 6.898355,-0.140709 3.535319,3.465157 3.46516,-3.465157 5.835872,0.140709 0.09806,11.146336 h -6.800003 l 4e-6,8.400001 h 6.799999 l -0.09806,11.353658 h -5.836395 l -3.466617,-3.4637 -3.533861,3.4637 H 3.216692 Z"
+     sodipodi:nodetypes="ccccccccccccccc" />
+  <rect
+     style="fill:none;stroke:#00ff00;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+     id="rect1666"
+     width="7.7999997"
+     height="30.899994"
+     x="35.516468"
+     y="2.801831" />
+  <rect
+     style="fill:none;stroke:#00ff00;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+     id="rect3038"
+     width="7.7999997"
+     height="30.899994"
+     x="25.348782"
+     y="2.801831" />
+  <rect
+     style="fill:none;stroke:#00ff00;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none"
+     id="rect3040"
+     width="7.7999997"
+     height="30.899994"
+     x="44.850735"
+     y="2.7184875" />
+</svg>
