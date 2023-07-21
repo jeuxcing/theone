@@ -25,34 +25,39 @@ void loop() {
   }
   
   // Get messages from server
-  uint8_t * rcv = net->read_message(10);
-  int strip, led, color;
-  if (rcv != nullptr)
+  uint8_t * rcv;
+  bool to_show = false;
+  while (rcv = net->read_message(10))
   {
-    printf("Message received\n");
-    int num_colors, i, color_idx;
-    switch (static_cast<char>(rcv[0]))
+    int strip, led, color;
+    if (rcv != nullptr)
     {
-    case 'C': // Change color map
-      num_colors = net->msg_size / 3;
-      //node->change_color_map(num_colors, rcv+1);
-    break;
+      //printf("Message received\n");
+      //Serial.println(millis());
+      int num_colors, i, color_idx;
+      switch (static_cast<char>(rcv[0]))
+      {
+      case 'C': // Change color map
+        num_colors = net->msg_size / 3;
+        //node->change_color_map(num_colors, rcv+1);
+      break;
 
-    case 'L': // Light the panel leds (all 9)
-      strip = rcv[5];
-      led = rcv[6];
-      color = rcv[7];
-      printf("Light %d %d %d \n", strip, led, color);
-      node->color_led(strip,led,color);
+      case 'L': // Light the panel leds (all 9)
+        strip = rcv[5];
+        led = rcv[6];
+        color = rcv[7];
+        //printf("Light %d %d %d \n", strip, led, color);
+        node->color_led(strip,led,color);
+        to_show = true;
+      break;
 
-      node->show();
-    break;
-
-    default:
-    break;
+      default:
+      break;
+      }
     }
   }
-  
 
+  if (to_show)
+    node->show();
 }
 

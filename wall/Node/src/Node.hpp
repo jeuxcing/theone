@@ -1,5 +1,5 @@
 #include <FastLED.h>
-
+#include "colors.h"
 
 #ifndef NODE_H
 #define NODE_H
@@ -7,13 +7,6 @@
 #define RING 0
 #define TOP 1
 #define RIGHT 2
-
-static const int colors[][3] = {
-        {0,0,0},
-        {15, 0, 0},
-        {0, 15, 0},
-        {0, 0, 15}
-    };
 
 
 class Node
@@ -46,9 +39,9 @@ class Node
         else if (device == RIGHT) { device_array = leds_right; }
 
         // Color choice
-        int r = colors[colorid % sizeof(colors)][0];
-        int g = colors[colorid % sizeof(colors)][1];
-        int b = colors[colorid % sizeof(colors)][2];
+        int r = default_colors[colorid % sizeof(default_colors)][0];
+        int g = default_colors[colorid % sizeof(default_colors)][1];
+        int b = default_colors[colorid % sizeof(default_colors)][2];
 
         // Filling
         device_array[num].r = r; device_array[num].g = g; device_array[num].b = b;
