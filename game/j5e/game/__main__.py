@@ -1,20 +1,13 @@
-from game.j5e.game.Timer import Timer
 from game.j5e.game.Agents import Lemming, Trap
-from game.j5e.game.GameSpace import GameSpace
-from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
+from game.j5e.game.GameEngine import GameEngine, SegType, Coordinate, Direction
 
 if __name__ == "__main__":
-    #stopFlag = Event()
-    #timer = Timer(stopFlag)
-    timer = Timer()
-    gs = GameSpace()
-    gs.init_graph(3, 24, 12)
-    pos1 = (GridDims.ROW, 0, 0, 0)
-    pos2 = ("ring", 0, 1, 0)
-    #goal = ("ring", 0, 1, 11) 
-    goal = (GridDims.ROW, 0, 1, 11)
-    timer.add(Lemming(1, "Lemmiwings",pos1, 1, goal, gs))
-    timer.add(Lemming(2, "Octodon",pos2, 1, goal, gs))
-    #timer.add(Trap(3, "une porte",4))
+    gameEngine =  GameEngine(3)
+    goal = Coordinate(1, 0, SegType.ROW, 0)
+    start_lemmi = Coordinate(0, 0, SegType.ROW, 0)
+    gameEngine.add(Lemming(1, "Lemmiwings", start_lemmi, Direction.FORWARD, goal))
+    start_octo = Coordinate(0, 0, SegType.RING, 0)
+    gameEngine.add(Lemming(2, "Octodon", start_octo, Direction.RING_CLOCKWISE, goal))
+    #gameEngine.add(Trap(3, "une porte",4))
        
-    timer.start()
+    gameEngine.start()

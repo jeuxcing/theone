@@ -1,81 +1,125 @@
-import networkx as nx
 from enum import Enum
-from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
+from game.j5e.game.OutOfLedsError import OutOfLedsError
+from game.j5e.game.Agents import Lemming, Trap
+from threading import Thread
+from multiprocessing import Event
 
-# Not used
-class Node:
-    def __init__(self):
-        self.status = 0
+class SegType(Enum):
+    RING = 0
+    ROW = 1
+    COL = 2
+
+    def nb_leds(self):
+        if self == SegType.RING :
+            return 12
+        else: 
+            return 18        
+
+
+class Coordinate:
+    """
+    Les coordonnées sont définies dans le sens de lecture.
+    La position est composée d'une ligne, d'une colonne, type de segment (SegType).
+    Par exemple la Coordinate 2 1 RING 0 désigne la led à 0h05 (0) de l'anneau (RING) sur la 3ème ligne (2) et sur la 2ème colonne (1).
+    La line est le segment qui commence à droite du ring.
+    Le col est le segment qui commence en dessous du ring.
+
+    """
+
+    def __init__(self, row, col, type, offset):
+        self.row = row
+        self.col = col
+        self.segment_type = type
+        self.seg_offset = offset
+
+
+    def copy(self, offset):
+        return Coordinate(self.row, self.col, self.segment_type, offset)
+
+
+    def __eq__(self, other):
+        return self.row == other.row and self.col == other.col and self.segment_type == other.segment_type
+
+
+    def get_next_coord(self, dir):
+        #RING clockwise
+        if (self.segment_type == SegType.RING):
+            next_offset = self.seg_offset+1
+            if (next_offset == self.segment_type.nb_leds()):
+                next_offset = 0
+            return self.copy(next_offset)
         
-    def create(self, segment_type, segment_pos_x, segment_pos_y, position_in_seg):
-        self.seg_type = segment_type
-        self.seg_pos_x = segment_pos_x
-        self.seg_pos_y = segment_pos_y
-        self.pos_in_seg = position_in_seg
+        #STRIPS
+        if (self.seg_offset + dir.delta() <0 or self.seg_offset + dir.delta() > self.segment_type.nb_leds()):
+            raise OutOfLedsError
+
+        return self.copy(self.seg_offset + dir.delta())
+
+    def __repr__(self):
+        return f"{self.row} {self.col} {self.segment_type} {self.seg_offset}"    
+
 
 class Direction(Enum):
     FORWARD = 1
     BACKWARD = -1
-    RING_FORWARD = 2
-    RING_BACKWARD = -2
+    RING_CLOCKWISE = 2
+    RING_COUNTERCLOCKWISE = -2
 
-class Position:
-    def __init__(self, t, x, y, p):
-        self.segment_type = t
-        self.seg_pos_x = x
-        self.seg_pos_y = y
-        self.pos_in_seg = p
-        
-    def getCoord(self):
-        return (self.segment_type,self.seg_pos_x,self.seg_pos_y,self.pos_in_seg)
+    def delta(self):
+        if (self == Direction.FORWARD or self == Direction.RING_CLOCKWISE):
+            return 1
+        else:
+            return -1    
 
-class GameSpace:
-    def __init__(self):
-        self.graph = nx.DiGraph()
-        
-    #def init_graph(self, grid, n_leds_segment, n_leds_ring):
-        #self.grid = grid
-    def init_graph(self, grid_size, n_leds_segment, n_leds_ring):
-        self.node_index = 0;
+
+    def opposite(self):
+        match(self):
+            case Direction.FORWARD:
+                return Direction.BACKWARD
+            case Direction.BACKWARD:
+                return Direction.FORWARD
+            case Direction.RING_CLOCKWISE:
+                return Direction.RING_COUNTERCLOCKWISE
+            case Direction.RING_COUNTERCLOCKWISE:
+                return Direction.RING_CLOCKWISE
+
+
+class RingState(Enum):
+    INACTIVE = 1
+    CLOCKWISE = 2
+    COUNTERCLOCKWISE = 3
+
+
+class GameEngine(Thread):
+    def __init__(self, grid_size):
+        """
+        :param int grid_size: nombre de ligne et colonnes de la grille (hypothèse : carrée) 
+        """
+        Thread.__init__(self)
+        self.timer = Event()
         self.grid_size = grid_size
-        self.n_leds_segment = n_leds_segment
-        self.n_leds_ring = n_leds_ring
-        print("Initializing graph...")
-        # Create nodes
-        self.create_nodes("line")
-        self.create_nodes("column")
-        self.create_nodes("ring")
-        # Create edges
-        self.create_edges_within("line")
-        self.create_edges_within("column")
-        self.create_edges_within("ring")
-             
-        # Lines and rings
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                led_ring_start = self.to_graph_node_index('ring', line_idx, seg_idx, 2)
-                led_strip_start = self.to_graph_node_index('line', line_idx, seg_idx, 0)
-                self.graph.add_edge(led_ring_start, led_strip_start)
-                led_strip_end = self.to_graph_node_index('line', line_idx, seg_idx, n_leds_segment-1)
-                led_ring_end = self.to_graph_node_index('ring', line_idx, seg_idx+1, 8)
-                self.graph.add_edge(led_strip_end, led_ring_end)
-        # Columns and rings
-        for line_idx in range(grid_size):
-            for seg_idx in range(grid_size-1):
-                led_ring_start = self.to_graph_node_index('ring', seg_idx, line_idx, 5)
-                led_strip_start = self.to_graph_node_index('column', line_idx, seg_idx, 0)
-                self.graph.add_edge(led_ring_start, led_strip_start)
-                led_strip_end = self.to_graph_node_index('column', line_idx, seg_idx, n_leds_segment-1)
-                led_ring_end = self.to_graph_node_index('ring', seg_idx+1, line_idx, 11)
-                self.graph.add_edge(led_strip_end, led_ring_end)
-             
-        #print("Printing nodes and edges")
-        #print(list(self.graph.nodes))
-        #print(list(self.graph.edges))
-        #print("Neighbors of node 290 = ", list(self.graph.neighbors(290)))
-        #print("Neighbors of node 22 = ", list(self.graph.neighbors(22)))
-        #print("Neighbors of node 22 = ", list(self.graph.neighbors(23)))
+        self.elements=[]
+        
+    def add(self,el):
+        self.elements.append(el)  
+        
+    def run(self):
+        i=0
+        # boucle d'action des éléments de jeu
+        while not self.timer.wait(0.2):
+            print(i,' : ')
+            for element in self.elements:
+                element.go()
+                # suppression des lemmings non actifs
+                if  isinstance(element,Lemming) and element.active==False:
+                    self.elements.remove(element)
+                    ## arrêt lorsque plus aucun lemming n'est actif
+                    if True not in [isinstance(ele,Lemming) for ele in self.elements] :
+                        self.timer.set()
+            i+=1    
 
+             
+'''
     def get_nb_lines_segments_leds(self,segment_type):
         return (self.grid_size,self.grid_size,self.n_leds_ring) if segment_type=="ring" \
         else (self.grid_size,self.grid_size-1,self.n_leds_segment)
@@ -135,7 +179,7 @@ class GameSpace:
         
         
     def to_graph_node_index(self, segment_type, segment_pos_x, segment_pos_y, position_in_seg):
-        #print("Computing node_index from coords ", segment_pos_x, " / ", segment_pos_y, " / ", position_in_seg)
+        print("Computing node_index from coords ", segment_pos_x, " / ", segment_pos_y, " / ", position_in_seg)
         n_leds_per_type = self.grid_size * (self.grid_size-1) * self.n_leds_segment
         type_offset = -1
         nb_segments,n_leds = self.get_nb_lines_segments_leds(segment_type)[1:]
@@ -148,7 +192,7 @@ class GameSpace:
         graph_node_index = type_offset*n_leds_per_type \
         + (segment_pos_x * nb_segments + segment_pos_y) * n_leds \
         + position_in_seg
-        #print("=> ", graph_node_index)
+        print("=> ", graph_node_index)
         return graph_node_index
         
         
@@ -205,13 +249,13 @@ class GameSpace:
         candidates = []
         # Specific behavior when in a ring
         if (self.graph.nodes[g_position]["type"] == "ring"):
-            if direction == Direction.RING_FORWARD:
+            if direction == Direction.RING_CLOCKWISE:
                 #print("ring")
                 succs = list(self.graph.successors(g_position))
                 preds = list(self.graph.predecessors(g_position))
                 next = self.find_ring_exit(succs, preds, direction)
                 return (next["position"], next["direction"])
-            elif direction == Direction.RING_BACKWARD:
+            elif direction == Direction.RING_COUNTERCLOCKWISE:
                 #print("ring")
                 succs = list(self.graph.successors(g_position))
                 preds = list(self.graph.predecessors(g_position))
@@ -221,7 +265,7 @@ class GameSpace:
                 # Issue : what hapens when a ring is blocked / has no available successor ?
                 candidates = list(self.graph.successors(g_position))
                 new_g_position = candidates[0]
-                new_direction = Direction.RING_FORWARD
+                new_direction = Direction.RING_CLOCKWISE
                 if direction == Direction.BACKWARD:
                     new_direction = Direction.FORWARD
                 return (new_g_position, new_direction)
@@ -247,19 +291,16 @@ class GameSpace:
             return (new_g_position, new_direction)
     
     
-    def get_next_position(self, position_and_direction):
+    def get_next_position(self, position, direction):
         #position_orig = ()
-        direction_orig = position_and_direction[4]
-        g_position_orig = self.to_graph_node_index(position_and_direction[0], position_and_direction[1], position_and_direction[2], position_and_direction[3])
+        direction_orig = direction
+        g_position_orig = self.to_graph_node_index(*position)
+
+        print(g_position_orig)
+        # pos -144
+
         new_g_pos_and_dir = self.compute_next_position_on_graph(g_position_orig, direction_orig)
         new_pos = self.to_tuple_position(new_g_pos_and_dir[0])
         new_pos_and_dir = (new_pos[0], new_pos[1], new_pos[2], new_pos[3], new_g_pos_and_dir[1])
         return new_pos_and_dir
-
-
-#gr = Grid()
-#gs = GameSpace(gr, 24, 12)
-#gs = GameSpace()
-#gs.init_graph(3, 24, 12)
-#pos = ('line', 0, 0, 22, 1)
-#print(gs.get_next_position(pos))
+'''

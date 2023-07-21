@@ -6,9 +6,9 @@ from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
 class TestMove(unittest.TestCase):
 
     def setUp(self):
-        self.gs = GameSpace()
-        self.gs.init_graph(3, 24, 12)
-        
+        self.gs = GameSpace(1)
+
+'''        
     def go(self,start,goal,initialDir,turnsMax):
         agent=Lemming(1, "Lemmiwings",start, initialDir, goal, self.gs)
         turns=0
@@ -17,12 +17,14 @@ class TestMove(unittest.TestCase):
             agent.go()
             turns+=1
         self.assertEqual(goal,agent.pos)
+'''        
 
-    def test_ring000_to_line001(self):
-        start = ("ring", 0, 0, 0)
-        goal = ("line", 0, 0, 1)
+    def test_00line0_to_00line1(self):
+        start = Coordinate(0, 0, SegType.RING, 0)
+        goal = Coordinate(0, 0, SegType.RING, 1)
         self.go(start,goal,Direction.FORWARD,100)
 
+'''        
     def test_line000_to_ring018(self):
         start = ("line", 0, 0, 0)
         goal = ("ring", 0, 1, 8)
@@ -62,6 +64,7 @@ class TestMove(unittest.TestCase):
         goal = ("column", 1, 0, 1)
         self.gs.change_direction_segment("ring", 0, 1)
         self.go(start, goal, Direction.FORWARD, 100)
+'''        
         
 if __name__ == '__main__':
     unittest.main()
