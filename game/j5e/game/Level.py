@@ -10,14 +10,12 @@ class Level:
         """
         self.grid_size = grid_size
         self.rings = [[Ring(Coordinate(row,col,SegType.RING)) for col in range(grid_size)] for row in range(grid_size) ]
-        self.rows = [[Segment(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
-        self.cols = [[Segment(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
+        self.rows = [[Line(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
+        self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
 
-        start_lemmi = Coordinate(0, 0, SegType.ROW, 0)
-        start_octo = Coordinate(0, 0, SegType.RING, 0)
-        goal = Coordinate(1, 0, SegType.ROW, 0)
-        self.lemmings = [Lemming(1, "Lemmiwings", start_lemmi, Direction.FORWARD, goal),
-                        Lemming(2, "Octodon", start_octo, Direction.RING_CLOCKWISE, goal)]
+        self.lemmings = [Lemming(1, "Lemmiwings", self.rows[0][0], 0, Direction.FORWARD)]
+                       # Lemming(2, "Octodon", self.rings[0][0], 0 , Direction.RING_CLOCKWISE)]
+        self.agents = [l for l in self.lemmings]
 
     def is_over(self):
         return len(self.lemmings) == 0

@@ -12,7 +12,7 @@ class SegType(Enum):
         if self == SegType.RING :
             return 12
         else: 
-            return 18        
+            return 24    
 
 
 class Coordinate:
@@ -93,53 +93,66 @@ class RingState(Enum):
 
 class Segment:
 
-    def __init__(self, active=True, coord = None):
-        self.active = active
+    def __init__(self, coord = None):
         self.coord = coord
         if coord is not None: 
             self.coord.seg_offset = None
 
     @abstractmethod
-    def get_next_coord(self, coord, dir):
+    def get_next_destination(self, offset, dir):
+        """
+        Retourne un triplet (segment, offset, direction) à partir de la coordonnée actuelle et de la direction de l'agent
+        """
         pass
 
 class Line(Segment):
 
-    def __init__(self, active=True, entrance = None, exit = None):
-        super().__init__(active)
+    def __init__(self, coord, entrance = None, exit = None):
+        super().__init__(coord)
         self.entrance = entrance
         self.exit = exit
 
-    # TODO ? coord -> offset
-    def get_next_coord(self, coord, dir):
+    def get_next_destination(self, offset, dir):
+
+        #TODOLA: debug nonetype unpack toussa
+
+        print("get_next_destination")
         try:
-            return coord.get_next_coord(dir)
+            dest_coord = self.coord.copy(offset).get_next_coord(dir)
+            print(dest_coord.seg_offset)
+            return self, dest_coord.seg_offset, dir
         except OutOfLedsException:
             if dir==Direction.BACKWARD and (self.entrance is not None):
                 ring_offset_delta = 1 if self.entrance.clockwise else 0
-                ring_offset_entrance = 2 if coord.segment_type==SegType.ROW else 5
+                ring_offset_entrance = 2 if self.coord.segment_type==SegType.ROW else 5
                 # exit the row in 0, enter the ring in 2 ( O<-- )
                 # exit the col in 0, enter the ring in 5
-                return Coordinate(coord.row, coord.col, SegType.RING, ring_offset_entrance+ring_offset_delta)
+                dest_offset = ring_offset_entrance+ring_offset_delta
+                dest_dir = Direction.RING_CLOCKWISE if self.entrance.CLOCKWISE else Direction.RING_COUNTERCLOCKWISE
+                return self.entrance, dest_offset, dest_dir
 
 
             elif dir==Direction.FORWARD and (self.exit is not None):
                 ring_offset_delta = 1 if self.exit.clockwise else 0
-                ring_offset_entrance = 8 if coord.segment_type==SegType.ROW else 11
+                ring_offset_entrance = 8 if self.coord.segment_type==SegType.ROW else 11
                 delta_row = 0 if coord.segment_type==SegType.ROW else 1
                 delta_col = 1 if coord.segment_type==SegType.ROW else 0  
                 # exit the row in 23, enter the ring in 8 ( -->O )
                 # exit the col in 23, enter the ring in 11
-                return Coordinate(coord.row+delta_row, coord.col+delta_col, SegType.RING, ring_offset_entrance+ring_offset_delta)
+                dest_offset = ring_offset_entrance+ring_offset_delta
+                dest_dir = Direction.RING_CLOCKWISE if self.exit.CLOCKWISE else Direction.RING_COUNTERCLOCKWISE
+                return self.exit, dest_offset, dest_dir
 
             else:
-                raise OutOfLedsException
+                dest_dir = dir.opposite()
+                dest_offset = offset+dest_dir.delta()
+                return self, dest_offset, dest_dir 
 
 
 class Ring(Segment):
 
-    def __init__(self, clockwise=True, path3h=None, path6h=None, path9h=None, path12h=None):
-        super().__init__()
+    def __init__(self, coord, clockwise=True, path3h=None, path6h=None, path9h=None, path12h=None):
+        super().__init__(coord)
         self.clockwise = clockwise
         self.paths = [None] * 12
         self.paths[3] = path3h
@@ -147,7 +160,8 @@ class Ring(Segment):
         self.paths[9] = path9h
         self.paths[0] = path12h
 
-    def get_next_coord(self, coord, dir):
+    def get_next_destination(self, coord, dir):
+        print("ring")
         previous_offset = (coord.seg_offset + 11) % 12
         offset = 0 if 1 < coord.seg_offset < 8 else 23
         if self.clockwise and (self.paths[previous_offset] is not None):

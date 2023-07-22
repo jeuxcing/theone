@@ -3,6 +3,7 @@ from multiprocessing import Event
 
 from game.j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentException
 from game.j5e.game.Level import Level
+from game.j5e.game.Agents import Actions
 
 
 
@@ -48,7 +49,25 @@ class GameEngine(Thread):
         # boucle d'action des éléments de jeu
         while (not self.level.is_over()) and (not self.timer.wait(0.2)):
             print(' Tour n°', i,' : ')
-            for lemming in self.level.lemmings:
-                lemming.go()
+            for agent in self.level.agents:
+                action = agent.play()
+                match(action):
+                    case Actions.MOVE:
+                        # update agent vector
+                        agent.segment, agent.offset, agent.dir = agent.segment.get_next_destination(agent.offset, agent.dir) 
+                        print(agent.name," va en ", agent.segment.coord, agent.offset)
+                         
             i+=1
 
+
+'''
+        try:
+            self.coord = self.coord.get_next_coord(self.dir)
+        except OutOfLedsException:
+            self.dir = self.dir.opposite()       
+            self.coord = self.coord.get_next_coord(self.dir)
+        if self.coord == self.goal:
+            self.active = False
+            print(self.name," a fini")
+        
+'''
