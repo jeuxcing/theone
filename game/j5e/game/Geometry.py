@@ -49,7 +49,7 @@ class Coordinate:
             return self.copy(next_offset)
         
         #STRIPS
-        if (self.seg_offset + dir.delta() <0 or self.seg_offset + dir.delta() > self.segment_type.nb_leds()):
+        if (self.seg_offset + dir.delta() <0 or self.seg_offset + dir.delta() >= self.segment_type.nb_leds()):
             raise OutOfLedsException
 
         return self.copy(self.seg_offset + dir.delta())
@@ -114,12 +114,8 @@ class Line(Segment):
 
     def get_next_destination(self, offset, dir):
 
-        #TODOLA: debug nonetype unpack toussa
-
-        print("get_next_destination")
         try:
             dest_coord = self.coord.copy(offset).get_next_coord(dir)
-            print(dest_coord.seg_offset)
             return self, dest_coord.seg_offset, dir
         except OutOfLedsException:
             if dir==Direction.BACKWARD and (self.entrance is not None):
@@ -128,7 +124,7 @@ class Line(Segment):
                 # exit the row in 0, enter the ring in 2 ( O<-- )
                 # exit the col in 0, enter the ring in 5
                 dest_offset = ring_offset_entrance+ring_offset_delta
-                dest_dir = Direction.RING_CLOCKWISE if self.entrance.CLOCKWISE else Direction.RING_COUNTERCLOCKWISE
+                dest_dir = Direction.RING_CLOCKWISE if self.entrance.clockwise else Direction.RING_COUNTERCLOCKWISE
                 return self.entrance, dest_offset, dest_dir
 
 
@@ -140,7 +136,7 @@ class Line(Segment):
                 # exit the row in 23, enter the ring in 8 ( -->O )
                 # exit the col in 23, enter the ring in 11
                 dest_offset = ring_offset_entrance+ring_offset_delta
-                dest_dir = Direction.RING_CLOCKWISE if self.exit.CLOCKWISE else Direction.RING_COUNTERCLOCKWISE
+                dest_dir = Direction.RING_CLOCKWISE if self.exit.clockwise else Direction.RING_COUNTERCLOCKWISE
                 return self.exit, dest_offset, dest_dir
 
             else:
@@ -160,11 +156,31 @@ class Ring(Segment):
         self.paths[9] = path9h
         self.paths[0] = path12h
 
-    def get_next_destination(self, coord, dir):
-        print("ring")
-        previous_offset = (coord.seg_offset + 11) % 12
-        offset = 0 if 1 < coord.seg_offset < 8 else 23
-        if self.clockwise and (self.paths[previous_offset] is not None):
-            return self.paths[previous_offset].coord.copy(offset)
-        elif (not self.clockwise) and (self.paths[coord.seg_offset] is not None) :
-            return self.paths[coord.seg_offset].coord.copy(offset)
+    def get_next_destination(self, offset, dir):
+        next_offset = (offset + 1) % 12
+        new_segment_offset = 0 if 1 < offset < 8 else 23
+        new_segment_dir = Direction.FORWARD if 1 < offset < 8 else Direction.BACKWARD
+
+        if self.clockwise and (self.paths[next_offset] is not None):
+            return self.paths[next_offset], new_segment_offset, new_segment_dir 
+        elif (not self.clockwise) and (self.paths[offset] is not None) :
+            return self.paths[offset], new_segment_offset, new_segment_dir
+        else:
+            return self, (offset+dir.delta()) % 12, dir
+
+    def set_12h(self, line):
+        self.paths[0] = line
+        line.exit = self
+
+    def set_3h(self, line):
+        self.paths[3] = line
+        line.entrance = self
+
+    def set_6h(self, line):
+        self.paths[6] = line
+        line.entrance = self
+
+    def set_9h(self, line):
+        self.paths[9] = line
+        line.exit = self
+

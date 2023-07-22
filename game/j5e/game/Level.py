@@ -13,9 +13,11 @@ class Level:
         self.rows = [[Line(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
         self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
 
-        self.lemmings = [Lemming(1, "Lemmiwings", self.rows[0][0], 0, Direction.FORWARD)]
-                       # Lemming(2, "Octodon", self.rings[0][0], 0 , Direction.RING_CLOCKWISE)]
+        self.lemmings = [Lemming(1, "Lemmiwings", self.rows[0][0], 0, Direction.FORWARD)
+                        ]#,Lemming(2, "Octodon", self.rings[0][0], 0 , Direction.RING_CLOCKWISE)]
         self.agents = [l for l in self.lemmings]
+
+        self.rings[0][0].set_3h(self.rows[0][0])
 
     def is_over(self):
         return len(self.lemmings) == 0
