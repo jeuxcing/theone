@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
-from game.j5e.game.OutOfLedsError import OutOfLedsError
+from abc import abstractmethod
+from game.j5e.game.GameExceptions import OutOfLedsException
 
 #Autonomous elements
 class Agent:
@@ -46,7 +46,7 @@ class Lemming(Agent):
     def action(self):
         try:
             self.coord = self.coord.get_next_coord(self.dir)
-        except OutOfLedsError:
+        except OutOfLedsException:
             self.dir = self.dir.opposite()       
             self.coord = self.coord.get_next_coord(self.dir)
         print(self.name," va en ",self.coord)

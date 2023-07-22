@@ -1,5 +1,6 @@
 from game.j5e.game.Agents import Lemming, Trap
-from game.j5e.game.GameEngine import GameEngine, SegType, Coordinate, Direction
+from game.j5e.game.GameEngine import GameEngine
+from game.j5e.game.Geometry import SegType, Coordinate, Direction
 
 if __name__ == "__main__":
     gameEngine =  GameEngine(3)
