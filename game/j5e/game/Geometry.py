@@ -1,5 +1,7 @@
 from enum import Enum
+from abc import abstractmethod
 from game.j5e.game.GameExceptions import OutOfLedsException
+
 
 class SegType(Enum):
     RING = 0
@@ -86,3 +88,69 @@ class RingState(Enum):
     CLOCKWISE = 2
     COUNTERCLOCKWISE = 3
 
+
+# TODO methods and defaults values
+
+class Segment:
+
+    def __init__(self, active=True, coord = None):
+        self.active = active
+        self.coord = coord
+        if coord is not None: 
+            self.coord.seg_offset = None
+
+    @abstractmethod
+    def get_next_coord(self, coord, dir):
+        pass
+
+class Line(Segment):
+
+    def __init__(self, active=True, entrance = None, exit = None):
+        super().__init__(active)
+        self.entrance = entrance
+        self.exit = exit
+
+    # TODO ? coord -> offset
+    def get_next_coord(self, coord, dir):
+        try:
+            return coord.get_next_coord(dir)
+        except OutOfLedsException:
+            if dir==Direction.BACKWARD and (self.entrance is not None):
+                ring_offset_delta = 1 if self.entrance.clockwise else 0
+                ring_offset_entrance = 2 if coord.segment_type==SegType.ROW else 5
+                # exit the row in 0, enter the ring in 2 ( O<-- )
+                # exit the col in 0, enter the ring in 5
+                return Coordinate(coord.row, coord.col, SegType.RING, ring_offset_entrance+ring_offset_delta)
+
+
+            elif dir==Direction.FORWARD and (self.exit is not None):
+                ring_offset_delta = 1 if self.exit.clockwise else 0
+                ring_offset_entrance = 8 if coord.segment_type==SegType.ROW else 11
+                delta_row = 0 if coord.segment_type==SegType.ROW else 1
+                delta_col = 1 if coord.segment_type==SegType.ROW else 0  
+                # exit the row in 23, enter the ring in 8 ( -->O )
+                # exit the col in 23, enter the ring in 11
+                return Coordinate(coord.row+delta_row, coord.col+delta_col, SegType.RING, ring_offset_entrance+ring_offset_delta)
+
+            else:
+                raise OutOfLedsException
+
+
+class Ring(Segment):
+
+    def __init__(self, clockwise=True, path3h=None, path6h=None, path9h=None, path12h=None):
+        super().__init__()
+        self.clockwise = clockwise
+        self.paths = [None] * 12
+        self.paths[3] = path3h
+        self.paths[6] = path6h
+        self.paths[9] = path9h
+        self.paths[0] = path12h
+
+    def get_next_coord(self, coord, dir):
+        previous_offset = (coord.seg_offset + 11) % 12
+        offset = 0 if 1 < coord.seg_offset < 8 else 23
+        if self.clockwise and (self.paths[previous_offset] is not None):
+            return self.paths[previous_offset].coord.copy(offset)
+        elif (not self.clockwise) and (self.paths[coord.seg_offset] is not None) :
+            return self.paths[coord.seg_offset].coord.copy(offset)

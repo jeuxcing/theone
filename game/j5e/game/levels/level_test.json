@@ -2,19 +2,17 @@
     "level": {
          "dimensions": {
             "grid_size": 3,
-            "n_leds_segment": 24,
-            "n_leds_ring": 12
         },
         "start_point": {
-            "segment_type": "line",
             "seg_pos_x": 0,
             "seg_pos_y": 0,
+            "segment_type": "line",
             "pos_in_seg": 1
         },
         "end_point": {
-            "segment_type": "line",
             "seg_pos_x": 0,
             "seg_pos_y": 1,
+            "segment_type": "line",
             "pos_in_seg": 1
         },
         "hazards": {
