@@ -1,9 +1,7 @@
 {
     "level": {
          "dimensions": {
-            "grid_size": 3,
-            "n_leds_segment": 24,
-            "n_leds_ring": 12
+            "grid_size": 3
         },
         "start_point": {
             "segment_type": "line",

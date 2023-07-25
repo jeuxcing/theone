@@ -1,45 +1,28 @@
 {
-    "level": {
-         "dimensions": {
-            "grid_size": 3,
-            "n_leds_segment": 24,
-            "n_leds_ring": 12
-        },
-        "start_point": {
-            "segment_type": "line",
-            "seg_pos_x": 0,
-            "seg_pos_y": 0,
-            "pos_in_seg": 1
-        },
-        "end_point": {
-            "segment_type": "line",
-            "seg_pos_x": 0,
-            "seg_pos_y": 0,
-            "pos_in_seg": 1
-        },
-        "hazards": {
-            "walls": [
-                {
-                    "segment_type": "column",
-                    "seg_pos_x": 1,
-                    "seg_pos_y": 0,
-                    "pos_in_seg_start": 12,
-                    "pos_in_seg_end": 16
-                }
-            ],
-            "reverse_rings": [
-                {
-                    "seg_pos_x": 1,
-                    "seg_pos_y": 0
-                }
-            ]
-        }
+    "grid_size": 3,
+    "geometry" : {
+        "fully_connected" : false,
+        "ring_connections" : [
+            {
+                "row_coord" : 0,
+                "col_coord" : 0,
+                "hour_coord" : 3
+            }
+        ]
     },
-    "agents": {
-        "lemmings": {
-            "number_spawns": 3,
-            "time_between_spawns": 5,
-            "number_to_win": 1
+    "lemmings" : [
+        {
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 0,
+            "direction" : "FORWARD"
         }
-    }
+    ],
+    "objects" : [
+        {
+
+        }
+    ]
+
 }
