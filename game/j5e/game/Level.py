@@ -20,6 +20,19 @@ class Level:
         self.lemmings.append(lemming)
         self.agents.append(lemming)                
 
+    def connect_all(self) :
+        for row_idx, row in enumerate(range(self.grid_size)):
+            for col_idx, col in enumerate(range(self.grid_size)):
+                if row_idx > 0 :
+                    self.add_connection_to_ring(row_idx, col_idx, 12)
+                if row_idx < (self.grid_size - 1):
+                    self.add_connection_to_ring(row_idx, col_idx, 6)
+
+                if col_idx > 0 :
+                    self.add_connection_to_ring(row_idx, col_idx, 9)
+                if col_idx < (self.grid_size - 1):
+                    self.add_connection_to_ring(row_idx, col_idx, 3)
+
 
     def add_connection_to_ring(self, ring_row, ring_col, hour):
         match hour:
@@ -116,20 +129,8 @@ class LevelBuilder:
             return None
 
         if fully_connected:
-            for row_idx, row in enumerate(range(lvl.grid_size)):
-                for col_idx, col in enumerate(range(lvl.grid_size)):
-                    if row_idx > 0 :
-                        lvl.add_connection_to_ring(row_idx, col_idx, 12)
-                    if row_idx < (lvl.grid_size - 1):
-                        lvl.add_connection_to_ring(row_idx, col_idx, 6)
-
-                    if col_idx > 0 :
-                        lvl.add_connection_to_ring(row_idx, col_idx, 9)
-                    if col_idx < (lvl.grid_size - 1):
-                        lvl.add_connection_to_ring(row_idx, col_idx, 3)
-
-                    
-
+            lvl.connect_all()        
+            
         for connection in ring_connections:
             try:
                 lvl.add_connection_to_ring(*connection)

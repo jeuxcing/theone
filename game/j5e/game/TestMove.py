@@ -1,13 +1,13 @@
 import unittest
-from game.j5e.game.Agents import Lemming, Trap
-from game.j5e.game.GameSpace import GameSpace, Direction
-from game.j5e.hardware.led_strip import Grid, GridDims as gd, GridDims
+from game.j5e.game.Geometry import Coordinate, Direction, SegType
+from game.j5e.game.Level import Level
 
 class TestMove(unittest.TestCase):
 
     def setUp(self):
-        self.gs = GameSpace(1)
+        self.lvl = Level(3)
 
+    
 '''        
     def go(self,start,goal,initialDir,turnsMax):
         agent=Lemming(1, "Lemmiwings",start, initialDir, goal, self.gs)
@@ -17,14 +17,14 @@ class TestMove(unittest.TestCase):
             agent.go()
             turns+=1
         self.assertEqual(goal,agent.pos)
-'''        
+
 
     def test_00line0_to_00line1(self):
         start = Coordinate(0, 0, SegType.RING, 0)
         goal = Coordinate(0, 0, SegType.RING, 1)
         self.go(start,goal,Direction.FORWARD,100)
 
-'''        
+        
     def test_line000_to_ring018(self):
         start = ("line", 0, 0, 0)
         goal = ("ring", 0, 1, 8)
