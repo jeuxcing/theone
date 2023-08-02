@@ -105,6 +105,9 @@ class Segment:
         """
         pass
 
+    def __repr__(self) -> str:
+        return str(self.coord)
+
 class Line(Segment):
 
     def __init__(self, coord, entrance = None, exit = None):
@@ -118,7 +121,9 @@ class Line(Segment):
             dest_coord = self.coord.copy(offset).get_next_coord(dir)
             return self, dest_coord.seg_offset, dir
         except OutOfLedsException:
+            print("exception",dir,self.entrance,self.exit)
             if dir==Direction.BACKWARD and (self.entrance is not None):
+                print("1er if")
                 ring_offset_delta = 1 if self.entrance.clockwise else 0
                 ring_offset_entrance = 2 if self.coord.segment_type==SegType.ROW else 5
                 # exit the row in 0, enter the ring in 2 ( O<-- )
@@ -129,10 +134,11 @@ class Line(Segment):
 
 
             elif dir==Direction.FORWARD and (self.exit is not None):
+                print("passe")
                 ring_offset_delta = 1 if self.exit.clockwise else 0
                 ring_offset_entrance = 8 if self.coord.segment_type==SegType.ROW else 11
-                delta_row = 0 if coord.segment_type==SegType.ROW else 1
-                delta_col = 1 if coord.segment_type==SegType.ROW else 0  
+                delta_row = 0 if self.coord.segment_type==SegType.ROW else 1
+                delta_col = 1 if self.coord.segment_type==SegType.ROW else 0  
                 # exit the row in 23, enter the ring in 8 ( -->O )
                 # exit the col in 23, enter the ring in 11
                 dest_offset = ring_offset_entrance+ring_offset_delta
@@ -144,6 +150,8 @@ class Line(Segment):
                 dest_offset = offset+dest_dir.delta()
                 return self, dest_offset, dest_dir 
 
+    def __repr__(self) -> str:
+        return "< Line " + super().__repr__() + " >"
 
 class Ring(Segment):
 
@@ -168,19 +176,37 @@ class Ring(Segment):
         else:
             return self, (offset+dir.delta()) % 12, dir
 
+    def set_h(self, line, hour):
+        hour %= 12
+        if line is None:
+            if self.paths[hour] is not None:
+                if 3 <= hour <= 6:
+                    self.paths[hour].entrance = None
+                else:
+                    self.paths[hour].exit = None            
+        else:
+            if 3 <= hour <= 6:
+                line.entrance = self
+            else:
+                line.exit = self
+
+        self.paths[hour] = line
+
+
     def set_12h(self, line):
-        self.paths[0] = line
-        line.exit = self
+        self.set_h(line,0)
+
 
     def set_3h(self, line):
-        self.paths[3] = line
-        line.entrance = self
+        self.set_h(line,3)
+
 
     def set_6h(self, line):
-        self.paths[6] = line
-        line.entrance = self
+        self.set_h(line,6)
+
 
     def set_9h(self, line):
-        self.paths[9] = line
-        line.exit = self
+        self.set_h(line,9)
 
+    def __repr__(self) -> str:
+        return "< Ring " + super().__repr__() + " >"

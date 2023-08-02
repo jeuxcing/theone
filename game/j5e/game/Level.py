@@ -13,10 +13,13 @@ class Level:
         self.rings = [[Ring(Coordinate(row,col,SegType.RING)) for col in range(grid_size)] for row in range(grid_size) ]
         self.rows = [[Line(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
         self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
+        self.lemmings = []
+        self.agents = []
 
-        self.lemmings = [Lemming(1, "Lemmiwings", self.rows[0][0], 0, Direction.FORWARD)
-                        ]#,Lemming(2, "Octodon", self.rings[0][0], 0 , Direction.RING_CLOCKWISE)]
-        self.agents = [l for l in self.lemmings]
+    def add_lemming(self,lemming):
+        self.lemmings.append(lemming)
+        self.agents.append(lemming)                
+
 
     def add_connection_to_ring(self, ring_row, ring_col, hour):
         match hour:
@@ -25,12 +28,26 @@ class Level:
             case 6:
                 self.rings[ring_row][ring_col].set_6h(self.cols[ring_row][ring_col])
             case 9:
-                self.rings[ring_row][ring_col].set_9h(self.rows[ring_row-1][ring_col])
-            case 12:
-                self.rings[ring_row][ring_col].set_12h(self.cols[ring_row][ring_col-1])        
+                self.rings[ring_row][ring_col].set_9h(self.rows[ring_row][ring_col-1])
+            case 12 | 0:
+                self.rings[ring_row][ring_col].set_12h(self.cols[ring_row-1][ring_col])        
+
+
+    def rm_connection_to_ring(self, ring_row, ring_col, hour):
+        match hour:
+            case 3: 
+                self.rings[ring_row][ring_col].set_3h(None)
+            case 6:
+                self.rings[ring_row][ring_col].set_6h(None)
+            case 9:
+                self.rings[ring_row][ring_col].set_9h(None)
+            case 12 | 0:
+                self.rings[ring_row][ring_col].set_12h(None)
+
 
     def is_over(self):
         return len(self.lemmings) == 0
+
 
     def copy(self):
         lvl = Level(self.grid_size)
@@ -39,7 +56,23 @@ class Level:
                 for path_idx, path in enumerate(ring.paths):
                     if path is not None:
                         lvl.add_connection_to_ring(ring_row_idx, ring_col_idx, path_idx)
+        for lemming in self.lemmings:
+            l = lemming.copy()
+            l.segment = lvl.getSegment(lemming.segment.coord)
+            lvl.add_lemming(l)
         return lvl
+    
+    def getSegment(self, coord):
+        match coord.segment_type:
+            case SegType.RING:
+                return self.rings[coord.row][coord.col]
+            case SegType.ROW:
+                return self.rows[coord.row][coord.col]
+            case SegType.COL:
+                return self.cols[coord.row][coord.col]
+            case other:
+                return None
+        
 
 class LevelBuilder:
 
@@ -76,78 +109,68 @@ class LevelBuilder:
         try:
             fully_connected = geometry['fully_connected']
             ring_connections = geometry['ring_connections']
+            ring_disconnections = geometry['ring_disconnections']
             
         except KeyError as e:
             print("error : attribute not found in json config file ", e)
             return None
 
-        #todo fully
+        if fully_connected:
+            for row_idx, row in enumerate(range(lvl.grid_size)):
+                for col_idx, col in enumerate(range(lvl.grid_size)):
+                    if row_idx > 0 :
+                        lvl.add_connection_to_ring(row_idx, col_idx, 12)
+                    if row_idx < (lvl.grid_size - 1):
+                        lvl.add_connection_to_ring(row_idx, col_idx, 6)
+
+                    if col_idx > 0 :
+                        lvl.add_connection_to_ring(row_idx, col_idx, 9)
+                    if col_idx < (lvl.grid_size - 1):
+                        lvl.add_connection_to_ring(row_idx, col_idx, 3)
+
+                    
+
         for connection in ring_connections:
             try:
-                lvl.add_connection_to_ring(
-                    connection['row_coord'], connection['col_coord'], connection['hour_coord'])
+                lvl.add_connection_to_ring(*connection)
+            except KeyError as e:
+                print("error : attribute not found in json config file ", e)
+                return None
+
+        for disconnection in ring_disconnections:
+            try:
+                lvl.rm_connection_to_ring(*disconnection)
             except KeyError as e:
                 print("error : attribute not found in json config file ", e)
                 return None
 
 
-
     def initialize_lemmings(lvl, lemmings):
-        pass
-'''
+        for lemming in lemmings:
+            try:
+                name = lemming['name']
+                row_coord = lemming['row_coord']
+                col_coord = lemming['col_coord']
+                seg_type = lemming['seg_type']
+                offset = lemming['offset']
+                direction = lemming['direction']
+            except KeyError as e:
+                print("error : attribute not found in json config file ", e)
+                return None
+            
+            segment = None
+            if seg_type == "ROW":
+                segment = lvl.rows[row_coord][col_coord]
+            elif seg_type == "COL":
+                segment = lvl.cols[row_coord][col_coord]
+            else:
+                segment = lvl.rings[row_coord][col_coord]
 
-        # Optional
-        keyz = json_level.keys()
-        for key in keyz:
-            #print(key)
-            if key == 'dimensions':
-                #print("found dimensions")
-                grid_size = json_level['dimensions']
-                if hasattr(grid_size, 'grid_size'):
-                    self.grid_size = grid_size['grid_size']
-            elif key == 'hazards':
-                #print("found hazards")
-                json_hazards = json_level['hazards']
-                keyz_hazards = json_hazards.keys()
-                for key_hazard in keyz_hazards:
-                    if key_hazard == 'walls':
-                        json_walls = json_hazards['walls']
-                        for w in json_walls:
-                            self.walls.append((Position(w['segment_type'], w['seg_pos_x'], w['seg_pos_y'], w['pos_in_seg_start']), Position(w['segment_type'], w['seg_pos_x'], w['seg_pos_y'], w['pos_in_seg_end'])))
-                    elif key_hazard == 'reverse_rings':
-                        json_reverse_rings = json_hazards['reverse_rings']
-                        for rr in json_reverse_rings:
-                            self.reverse_rings.append(Position('ring', rr['seg_pos_x'], rr['seg_pos_y'], 0))
-        # Agents
-        json_agents = json_contents['agents']
-        keyz_agents = json_agents.keys()
-        for key in keyz_agents:
-            if key == 'lemmings':
-                self.n_lemmings = json_agents['lemmings']['number_spawns']
-                self.time_between_spawns_lemmings = json_agents['lemmings']['time_between_spawns']
-                self.n_lemmings_to_win = json_agents['lemmings']['number_to_win']
+            dir = Direction.__getitem__(direction)
+            
+            l = Lemming(name, segment, offset, dir)
+            lvl.add_lemming(l)
+            
 
-'''
 
-'''
-    def set_config_from_json(self, json_file_path):
-        self.config.load_config_from_json(json_file_path)
-        self.translate_config_to_gamespace()
-        self.setup_agents()
 
-    # Create GameSpace graph matching the config
-    def translate_config_to_gamespace(self):
-        print("init graph with params", self.config.grid_size, self.config.n_leds_segment, self.config.n_leds_ring)
-        self.gamespace.init_graph(self.config.grid_size, self.config.n_leds_segment, self.config.n_leds_ring)
-        print("adding", len(self.config.walls), "walls")
-        for w in self.config.walls:
-            self.gamespace.set_section_status(w[0].segment_type, w[0].seg_pos_x, w[0].seg_pos_y, w[0].pos_in_seg, w[1].pos_in_seg, 0)
-        print("reversing direction on", len(self.config.walls), "rings")
-        for rr in self.config.reverse_rings:
-            self.gamespace.change_direction_segment(rr.segment_type, rr.seg_pos_x, rr.seg_pos_y)
-
-    def setup_agents(self):
-        self.agent=Lemming(1, "Lemmiwings",self.config.start_point.getCoord(), Direction.FORWARD, self.config.end_point.getCoord(), self.gamespace)
-        # TODO : setup from agents in config, only one for the moment
-
-       '''       
