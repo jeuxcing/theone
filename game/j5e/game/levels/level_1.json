@@ -20,9 +20,13 @@
             "direction" : "FORWARD"
         }
     ],
-    "objects" : [
+    "exits" : [
         {
-
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 10,
+            "required_lemmings" : 1
         }
     ]
 

@@ -1,6 +1,7 @@
 import json
 from game.j5e.game.Geometry import *
-from game.j5e.game.Agents import Lemming
+from game.j5e.game.Agents import Lemming, Exit
+from copy import deepcopy
 
 
 class Level:
@@ -15,10 +16,30 @@ class Level:
         self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
         self.lemmings = []
         self.agents = []
+        self.exits = []
+        self.elements = {}
+
+    def get_elements(self, coord):
+        if coord not in self.elements.keys():
+            return []
+        else:
+            return self.elements[coord]
+
 
     def add_lemming(self,lemming):
         self.lemmings.append(lemming)
         self.agents.append(lemming)                
+
+    def add_exit(self,exit):
+        self.exits.append(exit)
+        coord_elements = self.get_elements(exit.coord)
+        self.elements[exit.coord] = coord_elements + [exit]
+
+    def delete_agent(self, agent):
+        print("salut")
+        self.agents.remove(agent)
+        if agent in self.lemmings:
+            self.lemmings.remove(agent)
 
     def connect_all(self) :
         for row_idx, row in enumerate(range(self.grid_size)):
@@ -71,8 +92,11 @@ class Level:
                         lvl.add_connection_to_ring(ring_row_idx, ring_col_idx, path_idx)
         for lemming in self.lemmings:
             l = lemming.copy()
-            l.segment = lvl.getSegment(lemming.segment.coord)
             lvl.add_lemming(l)
+        for exit in self.exits:
+            e = exit.copy()
+            lvl.add_exit(e)
+            
         return lvl
     
     def getSegment(self, coord):
@@ -108,6 +132,7 @@ class LevelBuilder:
             grid_size = json_level['grid_size']
             geometry = json_level['geometry']
             lemmings = json_level['lemmings']
+            exits = json_level['exits']
             
         except KeyError as e:
             print("error : attribute not found in json config file ", e)
@@ -116,6 +141,7 @@ class LevelBuilder:
         lvl = Level(grid_size)
         LevelBuilder.initialize_geomtry(lvl,geometry)
         LevelBuilder.initialize_lemmings(lvl,lemmings)
+        LevelBuilder.initialize_exits(lvl,exits)
         return lvl
 
     def initialize_geomtry(lvl, geometry):
@@ -167,11 +193,42 @@ class LevelBuilder:
             else:
                 segment = lvl.rings[row_coord][col_coord]
 
+            coord = segment.coord.copy(offset)
+
             dir = Direction.__getitem__(direction)
             
-            l = Lemming(name, segment, offset, dir)
+            l = Lemming(name, coord, dir)
             lvl.add_lemming(l)
             
+
+    def initialize_exits(lvl, exits):
+        for exit in exits:
+            try:
+                row_coord = exit['row_coord']
+                col_coord = exit['col_coord']
+                seg_type = exit['seg_type']
+                offset = exit['offset']
+                required_lemmings = exit['required_lemmings']
+            except KeyError as e:
+                print("error : attribute not found in json config file ", e)
+                return None
+            
+            segment = None
+            if seg_type == "ROW":
+                segment = lvl.rows[row_coord][col_coord]
+            elif seg_type == "COL":
+                segment = lvl.cols[row_coord][col_coord]
+            else:
+                segment = lvl.rings[row_coord][col_coord]
+            
+            coord = segment.coord.copy(offset)
+
+            exit = Exit(coord, required_lemmings)
+            lvl.add_exit(exit)
+            
+
+
+
 
 
 

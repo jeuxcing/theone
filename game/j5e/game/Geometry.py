@@ -32,13 +32,19 @@ class Coordinate:
         self.seg_offset = offset
 
 
-    def copy(self, offset):
+    def copy(self, offset = None):
+        if offset is None:
+            offset = self.seg_offset
         return Coordinate(self.row, self.col, self.segment_type, offset)
-
+    
 
     def __eq__(self, other):
-        return self.row == other.row and self.col == other.col and self.segment_type == other.segment_type
+        # /!\ offset à None pour les coord de segments
+        return self.row == other.row and self.col == other.col and self.seg_offset == other.seg_offset and self.segment_type == other.segment_type
 
+    def __hash__(self) -> int:
+        off_val = 25 if self.seg_offset is None else self.seg_offset
+        return self.row + self.col * 5 + self.segment_type.value * 5 * 5 + off_val * 5 * 5 * 3
 
     def get_next_coord(self, dir):
         #RING clockwise
@@ -119,7 +125,7 @@ class Line(Segment):
 
         try:
             dest_coord = self.coord.copy(offset).get_next_coord(dir)
-            return self, dest_coord.seg_offset, dir
+            return self.coord.copy(dest_coord.seg_offset), dir
         except OutOfLedsException:
             print("exception",dir,self.entrance,self.exit)
             if dir==Direction.BACKWARD and (self.entrance is not None):
@@ -130,7 +136,7 @@ class Line(Segment):
                 # exit the col in 0, enter the ring in 5
                 dest_offset = ring_offset_entrance+ring_offset_delta
                 dest_dir = Direction.RING_CLOCKWISE if self.entrance.clockwise else Direction.RING_COUNTERCLOCKWISE
-                return self.entrance, dest_offset, dest_dir
+                return self.entrance.coord.copy(dest_offset), dest_dir
 
 
             elif dir==Direction.FORWARD and (self.exit is not None):
@@ -143,12 +149,12 @@ class Line(Segment):
                 # exit the col in 23, enter the ring in 11
                 dest_offset = ring_offset_entrance+ring_offset_delta
                 dest_dir = Direction.RING_CLOCKWISE if self.exit.clockwise else Direction.RING_COUNTERCLOCKWISE
-                return self.exit, dest_offset, dest_dir
+                return self.exit.coord.copy(dest_offset), dest_dir
 
             else:
                 dest_dir = dir.opposite()
                 dest_offset = offset+dest_dir.delta()
-                return self, dest_offset, dest_dir 
+                return self.coord.copy(dest_offset), dest_dir 
 
     def __repr__(self) -> str:
         return "< Line " + super().__repr__() + " >"
@@ -170,11 +176,11 @@ class Ring(Segment):
         new_segment_dir = Direction.FORWARD if 1 < offset < 8 else Direction.BACKWARD
 
         if self.clockwise and (self.paths[next_offset] is not None):
-            return self.paths[next_offset], new_segment_offset, new_segment_dir 
+            return self.paths[next_offset].coord.copy(new_segment_offset), new_segment_dir 
         elif (not self.clockwise) and (self.paths[offset] is not None) :
-            return self.paths[offset], new_segment_offset, new_segment_dir
+            return self.paths[offset].coord.copy(new_segment_offset), new_segment_dir
         else:
-            return self, (offset+dir.delta()) % 12, dir
+            return self.coord.copy((offset+dir.delta()) % 12), dir
 
     def set_h(self, line, hour):
         hour %= 12
