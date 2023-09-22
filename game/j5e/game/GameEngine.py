@@ -32,7 +32,6 @@ class GameEngine(Thread):
                         # update agent vector
                         agent.coord, agent.dir = segment.get_next_destination(agent.coord.seg_offset, agent.dir)
                         elements = self.current_level.get_elements(agent.coord)
-                        print(elements, self.current_level.elements)
                         print(agent.name," va en ", agent.coord)
                         for el in elements:
                             action = el.receive(agent)

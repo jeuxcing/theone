@@ -36,7 +36,6 @@ class Level:
         self.elements[exit.coord] = coord_elements + [exit]
 
     def delete_agent(self, agent):
-        print("salut")
         self.agents.remove(agent)
         if agent in self.lemmings:
             self.lemmings.remove(agent)
@@ -125,7 +124,8 @@ class LevelBuilder:
         grid_size = None
         geometry = None
         lemmings = None
-        objects = None
+        exits = None
+        teleporters = None
 
        # Mandatory
         try:
@@ -133,6 +133,7 @@ class LevelBuilder:
             geometry = json_level['geometry']
             lemmings = json_level['lemmings']
             exits = json_level['exits']
+            teleporters = json_level['teleporters']
             
         except KeyError as e:
             print("error : attribute not found in json config file ", e)
@@ -142,6 +143,7 @@ class LevelBuilder:
         LevelBuilder.initialize_geomtry(lvl,geometry)
         LevelBuilder.initialize_lemmings(lvl,lemmings)
         LevelBuilder.initialize_exits(lvl,exits)
+        LevelBuilder.initialize_teleport(lvl,teleporters)
         return lvl
 
     def initialize_geomtry(lvl, geometry):
@@ -226,6 +228,33 @@ class LevelBuilder:
             exit = Exit(coord, required_lemmings)
             lvl.add_exit(exit)
             
+    def initialize_teleporters(lvl, teleporters):
+        for teleporter in teleporters:
+            try:
+                row_coord = teleporter['row_coord']
+                col_coord = teleporter['col_coord']
+                seg_type = teleporter['seg_type']
+                offset = teleporter['offset']
+                dest_row_coord = teleporter['dest_row_coord']
+                dest_col_coord = teleporter['dest_col_coord']
+                dest_seg_type = teleporter['dest_seg_type']
+                dest_offset = teleporter['dest_offset']
+            except KeyError as e:
+                print("error : attribute not found in json config file ", e)
+                return None
+            
+            segment = None
+            if seg_type == "ROW":
+                segment = lvl.rows[row_coord][col_coord]
+            elif seg_type == "COL":
+                segment = lvl.cols[row_coord][col_coord]
+            else:
+                segment = lvl.rings[row_coord][col_coord]
+            
+            coord = segment.coord.copy(offset)
+
+            teleporter = Teleporter(coord, required_lemmings)
+            lvl.add_exit(teleporter)
 
 
 

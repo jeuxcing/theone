@@ -18,7 +18,16 @@
             "seg_type" : "ROW",
             "offset" : 0,
             "direction" : "FORWARD"
+        },
+        {
+            "name" : "Lemmiwings Jr",
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 1,
+            "direction" : "FORWARD"
         }
+
     ],
     "exits" : [
         {
@@ -26,7 +35,19 @@
             "col_coord" : 0,
             "seg_type" : "ROW",
             "offset" : 10,
-            "required_lemmings" : 1
+            "required_lemmings" : 2
+        }
+    ],
+    "teleporters" : [
+        {
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 3,
+            "dest_row_coord" : 0,
+            "dest_col_coord" : 0,
+            "dest_seg_type" : "ROW",
+            "dest_offset" : 6
         }
     ]
 

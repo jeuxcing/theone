@@ -32,7 +32,12 @@ class Exit(Element):
     def receive(self, agent):
         if isinstance(agent,Lemming):
             self.remaining_lemmings -= 1
-        return Actions.DELETE
+            print(self)
+            return Actions.DELETE
+        return Actions.NOTHING
+    
+    def __repr__(self) -> str:
+        return f'Exit ({self.remaining_lemmings}) : {self.coord} '
 
 #Autonomous elements
 class Agent(Element):
