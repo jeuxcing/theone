@@ -20,7 +20,7 @@
             "direction" : "FORWARD"
         },
         {
-            "name" : "Lemmiwings Jr",
+            "name" : "Shaï Ulud",
             "row_coord" : 0,
             "col_coord" : 0,
             "seg_type" : "ROW",
@@ -34,7 +34,7 @@
             "row_coord" : 0,
             "col_coord" : 0,
             "seg_type" : "ROW",
-            "offset" : 10,
+            "offset" : 6,
             "required_lemmings" : 2
         }
     ],
