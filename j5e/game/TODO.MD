@@ -2,7 +2,7 @@
 
 
 # TODO
-python3 -m game.j5e.game
+python3 -m j5e.game
 -> transformer en package python
 
 - alléger try parsing json dans LevelBuilder ?    
