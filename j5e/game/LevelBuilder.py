@@ -13,12 +13,7 @@ class LevelBuilder:
 
     def load_level_from_json(json_file_path):
         json_level = json.loads(open(json_file_path).read())
-        grid_size = None
-        geometry = None
-        lemmings = None
-        exits = None
-        teleporters = None
-
+        
         var_names = ["grid_size", "geometry", "lemmings", "exits", "teleporters"]
         data = json_to_named_tuple(var_names, json_level)            
         
