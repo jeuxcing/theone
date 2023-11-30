@@ -1,4 +1,5 @@
 import json
+from collections import namedtuple
 from j5e.game.Geometry import *
 from j5e.game.Element import Exit, Teleporter
 from j5e.game.Agent import Lemming
@@ -18,112 +19,75 @@ class LevelBuilder:
         exits = None
         teleporters = None
 
-        # Mandatory
-        try:
-            grid_size = json_level['grid_size']
-            geometry = json_level['geometry']
-            lemmings = json_level['lemmings']
-            exits = json_level['exits']
-            teleporters = json_level['teleporters']
-            
-        except KeyError as e:
-            print("error : attribute not found in json config file ", e)
-            return None
-
-        lvl = Level(grid_size)
-        LevelBuilder.initialize_geomtry(lvl,geometry)
-        LevelBuilder.initialize_lemmings(lvl,lemmings)
-        LevelBuilder.initialize_exits(lvl,exits)
-        LevelBuilder.initialize_teleporters(lvl,teleporters)
+        var_names = ["grid_size", "geometry", "lemmings", "exits", "teleporters"]
+        data = json_to_named_tuple(var_names, json_level)            
+        
+        lvl = Level(data.grid_size)
+        LevelBuilder.initialize_geomtry(lvl,data.geometry)
+        LevelBuilder.initialize_lemmings(lvl,data.lemmings)
+        LevelBuilder.initialize_exits(lvl,data.exits)
+        LevelBuilder.initialize_teleporters(lvl,data.teleporters)
         return lvl
 
     def initialize_geomtry(lvl, geometry):
-        try:
-            fully_connected = geometry['fully_connected']
-            ring_connections = geometry['ring_connections']
-            ring_disconnections = geometry['ring_disconnections']
+        var_names = ["fully_connected", "ring_connections", "ring_disconnections"]
+        data = json_to_named_tuple(var_names, geometry)            
+
+        if data.fully_connected:
+            lvl.connect_all()        
             
+        try:
+            for connection in data.ring_connections:
+                    lvl.add_connection_to_ring(*connection)
+            for disconnection in data.ring_disconnections:
+                lvl.rm_connection_to_ring(*disconnection)
         except KeyError as e:
             print("error : attribute not found in json config file ", e)
             return None
 
-        if fully_connected:
-            lvl.connect_all()        
-            
-        for connection in ring_connections:
-            try:
-                lvl.add_connection_to_ring(*connection)
-            except KeyError as e:
-                print("error : attribute not found in json config file ", e)
-                return None
-
-        for disconnection in ring_disconnections:
-            try:
-                lvl.rm_connection_to_ring(*disconnection)
-            except KeyError as e:
-                print("error : attribute not found in json config file ", e)
-                return None
-
 
     def initialize_lemmings(lvl, lemmings):
+        var_names = ["row_coord", "col_coord", "seg_type", "offset", "direction", "name"]
         for lemming in lemmings:
-            try:
-                name = lemming['name']
-                row_coord = lemming['row_coord']
-                col_coord = lemming['col_coord']
-                seg_type = lemming['seg_type']
-                offset = lemming['offset']
-                direction = lemming['direction']
-            except KeyError as e:
-                print("error : attribute not found in json config file ", e)
-                return None
+            data = json_to_named_tuple(var_names, lemming)            
+            dir = Direction.__getitem__(data.direction)
+            coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
             
-            dir = Direction.__getitem__(direction)
-            seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
-            coord = seg.coord.copy(offset)
-            
-            lvl.add_lemming(Lemming(name, coord, dir))
+            lvl.add_lemming(Lemming(data.name, coord, dir))
             
 
     def initialize_exits(lvl, exits):
+        var_names = ["row_coord", "col_coord", "seg_type", "offset", "required_lemmings"]
         for exit in exits:
-            try:
-                row_coord = exit['row_coord']
-                col_coord = exit['col_coord']
-                seg_type = exit['seg_type']
-                offset = exit['offset']
-                required_lemmings = exit['required_lemmings']
-            except KeyError as e:
-                print("error : attribute not found in json config file ", e)
-                return None
-            
-            seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
-            coord = seg.coord.copy(offset)
+            data = json_to_named_tuple(var_names, exit)
 
-            exit = Exit(coord, required_lemmings)
-            lvl.add_element(exit)
-            
+            coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
+
+            lvl.add_element(Exit(coord, data.required_lemmings))
+
+        
     def initialize_teleporters(lvl, teleporters):
+        var_names = ["row_coord", "col_coord", "seg_type", "offset", "dest_row_coord", "dest_col_coord", "dest_seg_type", "dest_offset"]
+
         for teleporter in teleporters:
-            try:
-                row_coord = teleporter['row_coord']
-                col_coord = teleporter['col_coord']
-                seg_type = teleporter['seg_type']
-                offset = teleporter['offset']
-                dest_row_coord = teleporter['dest_row_coord']
-                dest_col_coord = teleporter['dest_col_coord']
-                dest_seg_type = teleporter['dest_seg_type']
-                dest_offset = teleporter['dest_offset']
-            except KeyError as e:
-                print("error : attribute not found in json config file ", e)
-                return None
+            data = json_to_named_tuple(var_names, teleporter)
             
-            seg_src = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
-            coord_src = seg_src.coord.copy(offset)
+            coord_src = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
+            coord_dest = copy_coord(lvl, data.dest_row_coord, data.dest_col_coord, data.dest_seg_type, data.dest_offset)
 
-            seg_dest = lvl.get_segment(Coordinate(dest_row_coord, dest_col_coord, SegType[dest_seg_type]))
-            coord_dest = seg_dest.coord.copy(dest_offset)
+            lvl.add_element(Teleporter(coord_src, coord_dest))
 
-            teleporter = Teleporter(coord_src, coord_dest)
-            lvl.add_element(teleporter)
+def copy_coord(lvl, row_coord, col_coord, seg_type, offset):
+    seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
+    return seg.coord.copy(offset)
 
+def json_to_named_tuple(var_names, dico):
+    JsonObject = namedtuple('JsonObject', var_names)
+    values = []
+    for var in var_names:
+        if var not in dico:
+            print("error : attribute not found in json config file ")
+            return None
+        values.append(dico[var])
+    
+    return JsonObject(*values)

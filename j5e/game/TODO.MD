@@ -4,7 +4,6 @@ python3 -m j5e.game
 
 
 # TODO
-- alléger try parsing json dans LevelBuilder ?    
 
 - Fausse interaction réseau
     - Centre de commande qui modifie l'état du jeu
@@ -30,6 +29,9 @@ python3 -m j5e.game
 
 - interface de création de niveau en js
 
+- aller plus loin dans le chargement des data json en objets pythons de nos classes..?
+https://pynative.com/python-convert-json-data-into-custom-python-object/
+
 
 # DONE
 
@@ -44,3 +46,4 @@ python3 -m j5e.game
 - transformer en package python
 - plusieurs chemins de levels dans un fichier
 - plusieurs levels dans le jeu
+- alléger try parsing json dans LevelBuilder
