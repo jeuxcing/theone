@@ -1,4 +1,4 @@
-from game.j5e.game.Geometry import *
+from j5e.game.Geometry import *
 
 
 class Level:

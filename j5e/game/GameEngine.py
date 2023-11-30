@@ -2,12 +2,12 @@ from threading import Thread
 from multiprocessing import Event
 from os import path
 
-from game.j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentException
-from game.j5e.game.Level import Level
-from game.j5e.game.LevelBuilder import LevelBuilder
-from game.j5e.game.Element import Actions
-from game.j5e.game.Agent import Agent
-from game.j5e.game.Geometry import Coordinate
+from j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentException
+from j5e.game.Level import Level
+from j5e.game.LevelBuilder import LevelBuilder
+from j5e.game.Element import Actions
+from j5e.game.Agent import Agent
+from j5e.game.Geometry import Coordinate
 
 
 class GameEngine(Thread):
@@ -15,20 +15,48 @@ class GameEngine(Thread):
     def __init__(self):
         super().__init__()
         self.timer = Event()
-        self.levels = LevelBuilder.load_level_list_from_json(
-            path.join("game","j5e","game","levels","level_1.json"))
-        self.current_level_idx = 0
-        self.current_level = self.levels[0].copy()
+        self.levels = []
 
+        self.current_level = None
+        self.current_level_idx = None
+
+    def load_levels(self, filepath):
+        """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants
+                
+        """
+        with open(filepath) as fp:
+            dirpath = path.dirname(path.abspath(filepath))
+            # Charge les niveaux un à un
+            for line in fp:
+                line = line.strip()
+                # Chemin relatif au fichier qui liste les niveaux
+                lvlpath = path.join(dirpath, line) 
+                self.levels.append(LevelBuilder.load_level_from_json(lvlpath))
+
+            # Met en place le niveau après chargement
+            if len(self.levels) > 0:
+                self.current_level_idx = 0
         
     def run(self):
+        while (not self.is_over()):
+            print(' Level n°', self.current_level_idx)
+            self.current_level = self.levels[self.current_level_idx].copy()
+            self.run_current_lvl()
+            self.current_level_idx += 1
+            print("Niveau complété :o\n")
+
+    
+    def is_over(self):
+        return self.current_level_idx >= len(self.levels)
+
+    def run_current_lvl(self):
         i=0
         # boucle d'action des éléments de jeu
         while (not self.current_level.is_over()) and (not self.timer.wait(0.2)):
             print(' Tour n°', i,' : ')
             self.trigger_agents()
-            i+=1
-    
+            i += 1
+
     def trigger_agents(self):
         for agent in self.current_level.agents:
             self.execute(agent, agent.play())

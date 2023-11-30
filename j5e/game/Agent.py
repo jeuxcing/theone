@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from game.j5e.game.GameExceptions import OutOfLedsException
-from game.j5e.game.Actions import Actions
-from game.j5e.game.AbstractElement import AbstractElement
+from j5e.game.GameExceptions import OutOfLedsException
+from j5e.game.Actions import Actions
+from j5e.game.AbstractElement import AbstractElement
 
 #Autonomous elements
 class Agent(AbstractElement):

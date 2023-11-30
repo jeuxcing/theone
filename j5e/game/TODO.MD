@@ -1,10 +1,9 @@
 # INPROGRESS
+Pour lancer : 
+python3 -m j5e.game
 
 
 # TODO
-python3 -m j5e.game
--> transformer en package python
-
 - alléger try parsing json dans LevelBuilder ?    
 
 - Fausse interaction réseau
@@ -22,7 +21,6 @@ python3 -m j5e.game
     - tapis roulant (fixe à une case)
     - case active / inactive
 
-
 - faire le controleur
     - déplacement d'élément par
         - l'activation du potentiomètre linéaire 
@@ -31,8 +29,6 @@ python3 -m j5e.game
 - créer une structure du jeu complet
 
 - interface de création de niveau en js
-
-- TODO plusieurs chemins de levels dans un fichier
 
 
 # DONE
@@ -45,3 +41,6 @@ python3 -m j5e.game
 - séparation Level / LevelBuilder
 - 1er refacto LevelBuilder
 - refacto Agent/Element
+- transformer en package python
+- plusieurs chemins de levels dans un fichier
+- plusieurs levels dans le jeu

@@ -1,5 +1,5 @@
 import unittest
-from game.j5e.game.Geometry import Coordinate, Direction, SegType
+from j5e.game.Geometry import Coordinate, Direction, SegType
 
 class TestCoordinate(unittest.TestCase):
 

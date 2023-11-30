@@ -1,17 +1,14 @@
 import json
-from game.j5e.game.Geometry import *
-from game.j5e.game.Element import Exit, Teleporter
-from game.j5e.game.Agent import Lemming
-from game.j5e.game.Actions import Actions
-from game.j5e.game.Level import Level
+from j5e.game.Geometry import *
+from j5e.game.Element import Exit, Teleporter
+from j5e.game.Agent import Lemming
+from j5e.game.Actions import Actions
+from j5e.game.Level import Level
 
 class LevelBuilder:
 
     def __init__(self):
         pass
-
-    def load_level_list_from_json(json_file_path):
-        return [LevelBuilder.load_level_from_json(json_file_path)]
 
     def load_level_from_json(json_file_path):
         json_level = json.loads(open(json_file_path).read())

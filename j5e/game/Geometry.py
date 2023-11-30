@@ -1,6 +1,6 @@
 from enum import Enum
 from abc import abstractmethod
-from game.j5e.game.GameExceptions import OutOfLedsException
+from j5e.game.GameExceptions import OutOfLedsException
 
 
 class SegType(Enum):

@@ -1,6 +1,6 @@
 import unittest
-from game.j5e.game.Geometry import Coordinate, Direction, SegType
-from game.j5e.game.Level import Level
+from j5e.game.Geometry import Coordinate, Direction, SegType
+from j5e.game.Level import Level
 
 class TestMove(unittest.TestCase):
 
