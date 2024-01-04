@@ -19,6 +19,7 @@ class GameEngine(Thread):
 
         self.current_level = None
         self.current_level_idx = None
+        self.pause = True
 
     def load_levels(self, filepath):
         """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants
@@ -53,9 +54,13 @@ class GameEngine(Thread):
         i=0
         # boucle d'action des éléments de jeu
         while (not self.current_level.is_over()) and (not self.timer.wait(0.2)):
-            print(' Tour n°', i,' : ')
-            self.trigger_agents()
-            i += 1
+            if (not self.pause):
+                print(' Tour n°', i,' : ')
+                self.trigger_agents()
+                i += 1
+
+    def set_pause(self):
+        self.pause = not self.pause
 
     def trigger_agents(self):
         for agent in self.current_level.agents:

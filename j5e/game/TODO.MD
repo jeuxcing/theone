@@ -5,13 +5,11 @@ python3 -m j5e.game
 
 # TODO
 
+- Terminal interactif (play / pause)
 - Simuler les entrées de commande
-    - Thread de contrôle via socket
     - Fausse interaction réseau
         - Centre de commande qui modifie l'état du jeu
         - Classe timée qui envoie les commandes
-            - Play
-            - Stop
             - Plug on/off
 
 - ajouter des items de gameplay
@@ -49,3 +47,6 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 - plusieurs chemins de levels dans un fichier
 - plusieurs levels dans le jeu
 - alléger try parsing json dans LevelBuilder
+- Thread de contrôle via socket
+- Stop
+- Play

@@ -1,5 +1,5 @@
 import socket
-
+import time
 
 def connect():
     HOST = "127.0.0.1"  # The server's hostname or IP address
@@ -7,4 +7,6 @@ def connect():
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        s.sendall(b"Hello, world")
+        s.sendall(b"play")
+        time.sleep(1)
+        s.sendall(b"pause")
