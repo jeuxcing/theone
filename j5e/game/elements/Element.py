@@ -1,6 +1,6 @@
 from j5e.game.Actions import Actions
-from j5e.game.Agent import Lemming
-from j5e.game.AbstractElement import AbstractElement
+from j5e.game.elements.Agent import Lemming
+from j5e.game.elements.AbstractElement import AbstractElement
 
 class Exit(AbstractElement):
     def __init__(self, coord, remaining_lemmings):

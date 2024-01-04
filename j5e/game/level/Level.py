@@ -1,4 +1,4 @@
-from j5e.game.Geometry import *
+from j5e.game.level.Geometry import Ring, Coordinate, SegType, Line
 
 
 class Level:

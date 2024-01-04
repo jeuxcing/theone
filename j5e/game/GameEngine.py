@@ -3,11 +3,11 @@ from multiprocessing import Event
 from os import path
 
 from j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentException
-from j5e.game.Level import Level
-from j5e.game.LevelBuilder import LevelBuilder
-from j5e.game.Element import Actions
-from j5e.game.Agent import Agent
-from j5e.game.Geometry import Coordinate
+from j5e.game.level.Level import Level
+from j5e.game.level.LevelBuilder import LevelBuilder
+from j5e.game.elements.Element import Actions
+from j5e.game.elements.Agent import Agent
+from j5e.game.level.Geometry import Coordinate
 
 
 class GameEngine(Thread):

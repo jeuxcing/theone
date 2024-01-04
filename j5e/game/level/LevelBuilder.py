@@ -1,10 +1,10 @@
 import json
 from collections import namedtuple
-from j5e.game.Geometry import *
-from j5e.game.Element import Exit, Teleporter
-from j5e.game.Agent import Lemming
+from j5e.game.level.Geometry import Direction, Coordinate, SegType
+from j5e.game.elements.Element import Exit, Teleporter
+from j5e.game.elements.Agent import Lemming
 from j5e.game.Actions import Actions
-from j5e.game.Level import Level
+from j5e.game.level.Level import Level
 
 class LevelBuilder:
 

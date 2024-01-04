@@ -5,12 +5,14 @@ python3 -m j5e.game
 
 # TODO
 
-- Fausse interaction réseau
-    - Centre de commande qui modifie l'état du jeu
-    - Classe timée qui envoie les commandes
-        - Play
-        - Stop
-        - Plug on/off
+- Simuler les entrées de commande
+    - Thread de contrôle via socket
+    - Fausse interaction réseau
+        - Centre de commande qui modifie l'état du jeu
+        - Classe timée qui envoie les commandes
+            - Play
+            - Stop
+            - Plug on/off
 
 - ajouter des items de gameplay
     - aiguillage
