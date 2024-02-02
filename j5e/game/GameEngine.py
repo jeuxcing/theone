@@ -19,11 +19,10 @@ class GameEngine(Thread):
 
         self.current_level = None
         self.current_level_idx = None
-        self.pause = True
+        self._pause = True
 
     def load_levels(self, filepath):
-        """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants
-                
+        """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants                
         """
         with open(filepath) as fp:
             dirpath = path.dirname(path.abspath(filepath))
@@ -42,10 +41,12 @@ class GameEngine(Thread):
         while (not self.is_over()):
             print(' Level n°', self.current_level_idx)
             self.current_level = self.levels[self.current_level_idx].copy()
+            self.pause()
             self.run_current_lvl()
             self.current_level_idx += 1
             print("Niveau complété :o\n")
-
+        print("Game Over")
+        
     
     def is_over(self):
         return self.current_level_idx >= len(self.levels)
@@ -54,13 +55,16 @@ class GameEngine(Thread):
         i=0
         # boucle d'action des éléments de jeu
         while (not self.current_level.is_over()) and (not self.timer.wait(0.2)):
-            if (not self.pause):
+            if (not self._pause):
                 print(' Tour n°', i,' : ')
                 self.trigger_agents()
                 i += 1
 
-    def set_pause(self):
-        self.pause = not self.pause
+    def pause(self):
+        self._pause = True
+
+    def play(self):
+        self._pause = False
 
     def trigger_agents(self):
         for agent in self.current_level.agents:
@@ -88,5 +92,6 @@ class GameEngine(Thread):
                     new_elements = self.current_level.get_elements(agent.coord)
                     self.apply_elements(agent, new_elements)
 
-
+    def change_ring_rotation(self, row, col):
+        self.current_level.reverse_ring(row,col)
 

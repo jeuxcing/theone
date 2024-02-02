@@ -1,12 +1,18 @@
 {
     "grid_size": 3,
     "geometry" : {
-        "fully_connected" : true,
-        "ring_connections" : [],
-        "ring_disconnections" : [            
-            [0,1,3]
-        ]
-
+        "fully_connected" : false,
+        "ring_connections" : [            
+            [0,0,3],
+            [0,0,6],
+            [0,1,9],
+            [0,1,6],
+            [1,1,12],
+            [1,1,9],
+            [1,0,3],
+            [1,0,12]
+        ],
+        "ring_disconnections" : []
     },
     "lemmings" : [
         {
@@ -16,24 +22,15 @@
             "seg_type" : "ROW",
             "offset" : 0,
             "direction" : "FORWARD"
-        },
-        {
-            "name" : "Shaï Ulud",
-            "row_coord" : 0,
-            "col_coord" : 0,
-            "seg_type" : "ROW",
-            "offset" : 1,
-            "direction" : "FORWARD"
         }
-
     ],
     "exits" : [
         {
             "row_coord" : 0,
             "col_coord" : 1,
             "seg_type" : "RING",
-            "offset" : 10,
-            "required_lemmings" : 2
+            "offset" : 7,
+            "required_lemmings" : 1
         }
     ],
     "teleporters" : []

@@ -90,7 +90,10 @@ class Level:
         for coord in self.elements:
             lvl.elements[coord.copy()] = [el.copy() for el in self.elements[coord]]
         return lvl
-    
+
+    def reverse_ring(self, row, col):
+        self.get_segment(Coordinate(row, col, SegType.RING)).reverse_ring()
+
     def get_segment(self, coord):
         match coord.segment_type:
             case SegType.RING:

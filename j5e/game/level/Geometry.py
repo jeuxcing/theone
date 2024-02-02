@@ -89,11 +89,6 @@ class Direction(Enum):
                 return Direction.RING_CLOCKWISE
 
 
-class RingState(Enum):
-    INACTIVE = 1
-    CLOCKWISE = 2
-    COUNTERCLOCKWISE = 3
-
 
 # TODO methods and defaults values
 
@@ -127,9 +122,9 @@ class Line(Segment):
             dest_coord = self.coord.copy(offset).get_next_coord(dir)
             return self.coord.copy(dest_coord.seg_offset), dir
         except OutOfLedsException:
-            print("exception",dir,self.entrance,self.exit)
+            # print("exception",dir,self.entrance,self.exit)
             if dir==Direction.BACKWARD and (self.entrance is not None):
-                print("1er if")
+                # print("1er if")
                 ring_offset_delta = 1 if self.entrance.clockwise else 0
                 ring_offset_entrance = 2 if self.coord.segment_type==SegType.ROW else 5
                 # exit the row in 0, enter the ring in 2 ( O<-- )
@@ -140,7 +135,6 @@ class Line(Segment):
 
 
             elif dir==Direction.FORWARD and (self.exit is not None):
-                print("passe")
                 ring_offset_delta = 1 if self.exit.clockwise else 0
                 ring_offset_entrance = 8 if self.coord.segment_type==SegType.ROW else 11
                 delta_row = 0 if self.coord.segment_type==SegType.ROW else 1
@@ -158,6 +152,7 @@ class Line(Segment):
 
     def __repr__(self) -> str:
         return "< Line " + super().__repr__() + " >"
+
 
 class Ring(Segment):
 
@@ -213,6 +208,9 @@ class Ring(Segment):
 
     def set_9h(self, line):
         self.set_h(line,9)
+
+    def reverse_ring(self):
+        self.clockwise = not self.clockwise
 
     def __repr__(self) -> str:
         return "< Ring " + super().__repr__() + " >"

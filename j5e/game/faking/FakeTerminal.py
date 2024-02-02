@@ -7,6 +7,9 @@ def connect():
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
-        s.sendall(b"play")
-        time.sleep(1)
-        s.sendall(b"pause")
+
+        val = input()
+        while val != "quit":
+            print(val)
+            s.sendall(val.encode("utf-8"))
+            val = input()

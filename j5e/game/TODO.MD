@@ -1,11 +1,18 @@
-# INPROGRESS
+# NOTICE
 Pour lancer : 
 python3 -m j5e.game
+python3 -m j5e.game.faking
 
+Commandes réseau d'interaction avec le jeu : j5e/game/PROTOCOL.md
+
+Pour quitter proprement, play après le Game Over
+
+# INPROGRESS
 
 # TODO
-
-- Terminal interactif (play / pause)
+- commande reset de niveau
+- sockets non bloquants
+- capturer le control C pour quitter proprement (pb de port sinon)
 - Simuler les entrées de commande
     - Fausse interaction réseau
         - Centre de commande qui modifie l'état du jeu
@@ -35,6 +42,12 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 
 # DONE
 
+- niveau 3 carré rotation 0 1 victorieuse
+- commande rotation row col
+- noter dans un fichier le protocole
+- commande play : lancer niveau côté controller
+- Supprimer résidu RingState
+- Terminal interactif (play / pause)
 - segment actif / inactif
 - lemmings bougent correctement
 - lemmings disparaissent une fois la sortie passée
