@@ -9,9 +9,13 @@ Pour quitter proprement, play après le Game Over
 
 # INPROGRESS
 - générateur de lemmings
-- voir si on peut retirer teleporters si vide
+--> débugguer perdu avant d'avoir joué : cause = infini à atteindre à l'initialisation
+-----> impossible car generateurs + lemmings vivants < infini
 
 # TODO
+- voir si on peut retirer teleporters si vide
+
+
 - commande reset de niveau
 - sockets non bloquants
 - Classe timée qui envoie les commandes
