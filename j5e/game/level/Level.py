@@ -12,21 +12,26 @@ class Level:
         self.rows = [[Line(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
         self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
         self.lemmings = []
+        self.generators = []
         self.agents = []
         self.elements = {}
-
+        self.remaining_to_win = float("inf")
+     
     def get_elements(self, coord):
         if coord not in self.elements.keys():
             return []
         else:
             return self.elements[coord]
 
-
-    def add_lemming(self,lemming):
+    def add_lemming(self, lemming):
         self.lemmings.append(lemming)
         self.agents.append(lemming)                
 
-    def add_element(self,element):
+    def add_generator(self, generator):
+        self.generators.append(generator)
+        self.agents.append(generator)                
+
+    def add_element(self, element):
         coord_elements = self.get_elements(element.coord)
         self.elements[element.coord] = coord_elements + [element]
 
@@ -74,8 +79,13 @@ class Level:
 
 
     def is_over(self):
-        return len(self.lemmings) == 0
+        return self.is_lost() or self.is_won() 
 
+    def is_won(self):
+        return self.remaining_to_win <= 0
+
+    def is_lost(self):
+        return len(self.lemmings) + sum([gen.num_lemmings for gen in self.generators]) < self.remaining_to_win
 
     def copy(self):
         lvl = Level(self.grid_size)

@@ -8,20 +8,18 @@ Commandes réseau d'interaction avec le jeu : j5e/game/PROTOCOL.md
 Pour quitter proprement, play après le Game Over
 
 # INPROGRESS
+- générateur de lemmings
+- voir si on peut retirer teleporters si vide
 
 # TODO
 - commande reset de niveau
 - sockets non bloquants
+- Classe timée qui envoie les commandes
 - capturer le control C pour quitter proprement (pb de port sinon)
-- Simuler les entrées de commande
-    - Fausse interaction réseau
-        - Centre de commande qui modifie l'état du jeu
-        - Classe timée qui envoie les commandes
-            - Plug on/off
+- Plug on/off
 
 - ajouter des items de gameplay
     - aiguillage
-    - générateur de lemmings
     - lave leminningicide roundupisante
     - déplaceur d'objet
     - tapis roulant (fixe à une case)
@@ -42,6 +40,9 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 
 # DONE
 
+- Simuler les entrées de commande
+    - Fausse interaction réseau
+        - Centre de commande qui modifie l'état du jeu
 - niveau 3 carré rotation 0 1 victorieuse
 - commande rotation row col
 - noter dans un fichier le protocole

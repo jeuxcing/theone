@@ -6,7 +6,7 @@ from j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentExc
 from j5e.game.level.Level import Level
 from j5e.game.level.LevelBuilder import LevelBuilder
 from j5e.game.elements.Element import Actions
-from j5e.game.elements.Agent import Agent
+from j5e.game.elements.Agent import Agent, Lemming
 from j5e.game.level.Geometry import Coordinate
 
 
@@ -43,8 +43,11 @@ class GameEngine(Thread):
             self.current_level = self.levels[self.current_level_idx].copy()
             self.pause()
             self.run_current_lvl()
-            self.current_level_idx += 1
-            print("Niveau complété :o\n")
+            if self.current_level.is_won():
+                self.current_level_idx += 1
+                print("Niveau complété :o\n")
+            else:
+                print("Gros Nul ! RECOMMENCE §§ \n")
         print("Game Over")
         
     
@@ -54,11 +57,15 @@ class GameEngine(Thread):
     def run_current_lvl(self):
         i=0
         # boucle d'action des éléments de jeu
-        while (not self.current_level.is_over()) and (not self.timer.wait(0.2)):
+        is_over = False
+        while (not is_over) and (not self.timer.wait(0.2)):
             if (not self._pause):
                 print(' Tour n°', i,' : ')
                 self.trigger_agents()
                 i += 1
+
+            if self.current_level.is_over():
+                is_over = True
 
     def pause(self):
         self._pause = True
@@ -79,13 +86,17 @@ class GameEngine(Thread):
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
                 self.apply_elements(agent,elements)
+            case Actions.BIRTH:
+                segment = self.current_level.get_segment(agent.coord)
+                self.current_level.add_lemming(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
     
     def apply_elements(self, agent, elements):
         for el in elements:
             action = el.receive(agent)
             match(action):
-                case Actions.DELETE:
+                case Actions.EXIT:
                     self.current_level.delete_agent(agent)
+                    self.current_level.remaining_to_win -= 1
                 case Actions.TELEPORT:
                     agent.coord = el.coord_dest
                     print(agent.name," téléporté en ", agent.coord)

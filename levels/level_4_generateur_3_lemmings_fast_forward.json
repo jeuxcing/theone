@@ -1,0 +1,29 @@
+{
+    "grid_size": 2,
+    "geometry" : {
+        "fully_connected" : true,
+        "ring_connections" : [],
+        "ring_disconnections" : []
+    },
+    "lemmings" : [],
+    "exits" : [
+        {
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 7,
+            "required_lemmings" : 3
+        }
+    ],
+    "teleporters" : [],
+    "generators" : [
+        {
+            "row_coord" : 0,
+            "col_coord" : 0,
+            "seg_type" : "ROW",
+            "offset" : 2,
+            "num_lemmings" : 3
+        }
+    ]
+
+}

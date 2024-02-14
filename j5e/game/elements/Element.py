@@ -17,7 +17,7 @@ class Exit(AbstractElement):
         if isinstance(agent, Lemming):
             self.remaining_lemmings -= 1
             print(self)
-            return Actions.DELETE
+            return Actions.EXIT
         return Actions.NOTHING
     
     def __repr__(self) -> str:
@@ -33,3 +33,4 @@ class Teleporter(AbstractElement):
 
     def receive(self, agent):
         return Actions.TELEPORT
+    

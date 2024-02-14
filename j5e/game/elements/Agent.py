@@ -38,3 +38,18 @@ class Lemming(Agent):
         return Lemming(self.name, self.coord, self.dir, self.period)
 
 
+class Generator(Agent):
+    next_idx = 0
+
+    def __init__(self, coord, num_lemmings, dir, gen_period=1, lemming_period=1):    
+        super().__init__(f"Gen_{Generator.next_idx}", coord, gen_period)
+        Generator.next_idx += 1
+        self.num_lemmings = num_lemmings
+        self.period = gen_period
+        self.dir = dir
+        self.lemming_period = lemming_period
+
+    def act(self):
+        if self.num_lemmings>0:
+            self.num_lemmings -= 1
+            return Actions.BIRTH

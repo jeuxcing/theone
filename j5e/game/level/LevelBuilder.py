@@ -2,7 +2,7 @@ import json
 from collections import namedtuple
 from j5e.game.level.Geometry import Direction, Coordinate, SegType
 from j5e.game.elements.Element import Exit, Teleporter
-from j5e.game.elements.Agent import Lemming
+from j5e.game.elements.Agent import Lemming, Generator
 from j5e.game.Actions import Actions
 from j5e.game.level.Level import Level
 
@@ -20,6 +20,7 @@ class LevelBuilder:
         lvl = Level(data.grid_size)
         LevelBuilder.initialize_geomtry(lvl,data.geometry)
         LevelBuilder.initialize_lemmings(lvl,data.lemmings)
+        lvl.remaining_to_win = len(lvl.lemmings)
         LevelBuilder.initialize_exits(lvl,data.exits)
         LevelBuilder.initialize_teleporters(lvl,data.teleporters)
         return lvl
@@ -71,6 +72,17 @@ class LevelBuilder:
             coord_dest = copy_coord(lvl, data.dest_row_coord, data.dest_col_coord, data.dest_seg_type, data.dest_offset)
 
             lvl.add_element(Teleporter(coord_src, coord_dest))
+
+    def initialize_generators(lvl, generators):
+        var_names = ["row_coord", "col_coord", "seg_type", "offset", "lemming_number"]
+
+        for generator in generators:
+            data = json_to_named_tuple(var_names, generator)
+            dir = Direction.__getitem__(data.direction)            
+            coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
+            num_lemmings = data.num_lemmings
+
+            lvl.add_generator(Generator(coord, num_lemmings, dir))
 
 def copy_coord(lvl, row_coord, col_coord, seg_type, offset):
     seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
