@@ -7,10 +7,11 @@ Commandes réseau d'interaction avec le jeu : j5e/game/PROTOCOL.md
 
 Pour quitter proprement, play après le Game Over
 
+Pour gagner un niveau, il faut que le nombre de lemmings requis total soit atteint
+
 # INPROGRESS
+- gagner le niveau
 - générateur de lemmings
---> débugguer perdu avant d'avoir joué : cause = infini à atteindre à l'initialisation
------> impossible car generateurs + lemmings vivants < infini
 
 # TODO
 - voir si on peut retirer teleporters si vide

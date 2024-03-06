@@ -38,6 +38,7 @@
             "dest_seg_type" : "ROW",
             "dest_offset" : 6
         }
-    ]
+    ],
+    "required_to_win": 1
 
 }

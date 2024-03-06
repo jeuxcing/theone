@@ -24,6 +24,7 @@
             "offset" : 2,
             "num_lemmings" : 3
         }
-    ]
+    ],
+    "required_to_win": 3
 
 }

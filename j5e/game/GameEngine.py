@@ -62,6 +62,7 @@ class GameEngine(Thread):
             if (not self._pause):
                 print(' Tour n°', i,' : ')
                 self.trigger_agents()
+                print(f"Remaining to win: {self.current_level.remaining_to_win}")
                 i += 1
 
             if self.current_level.is_over():

@@ -85,10 +85,13 @@ class Level:
         return self.remaining_to_win <= 0
 
     def is_lost(self):
+        if self.remaining_to_win == float('inf'):
+            return False
         return len(self.lemmings) + sum([gen.num_lemmings for gen in self.generators]) < self.remaining_to_win
 
     def copy(self):
         lvl = Level(self.grid_size)
+        lvl.remaining_to_win = self.remaining_to_win
         for ring_row_idx, ring_row in enumerate(self.rings):
             for ring_col_idx, ring in enumerate(ring_row):
                 for path_idx, path in enumerate(ring.paths):

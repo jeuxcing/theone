@@ -14,23 +14,23 @@ class LevelBuilder:
     def load_level_from_json(json_file_path):
         json_level = json.loads(open(json_file_path).read())
         
-        var_names = ["grid_size", "geometry", "lemmings", "exits", "teleporters"]
-        data = json_to_named_tuple(var_names, json_level)            
+        var_names = ["grid_size", "geometry", "lemmings", "exits", "teleporters", "required_to_win"]
+        data = json_to_named_tuple(var_names, json_level)
         
         lvl = Level(data.grid_size)
         LevelBuilder.initialize_geomtry(lvl,data.geometry)
         LevelBuilder.initialize_lemmings(lvl,data.lemmings)
-        lvl.remaining_to_win = len(lvl.lemmings)
+        lvl.remaining_to_win = data.required_to_win
         LevelBuilder.initialize_exits(lvl,data.exits)
         LevelBuilder.initialize_teleporters(lvl,data.teleporters)
         return lvl
 
     def initialize_geomtry(lvl, geometry):
         var_names = ["fully_connected", "ring_connections", "ring_disconnections"]
-        data = json_to_named_tuple(var_names, geometry)            
+        data = json_to_named_tuple(var_names, geometry)
 
         if data.fully_connected:
-            lvl.connect_all()        
+            lvl.connect_all()
             
         try:
             for connection in data.ring_connections:
@@ -53,13 +53,17 @@ class LevelBuilder:
             
 
     def initialize_exits(lvl, exits):
-        var_names = ["row_coord", "col_coord", "seg_type", "offset", "required_lemmings"]
+        var_names = ["row_coord", "col_coord", "seg_type", "offset"] 
+        # optional : "required_lemmings"
         for exit in exits:
             data = json_to_named_tuple(var_names, exit)
 
             coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
 
-            lvl.add_element(Exit(coord, data.required_lemmings))
+            if data.required_lemmings is not None:
+                lvl.add_element(Exit(coord, data.required_lemmings))
+            else:
+                lvl.add_element(Exit(coord))
 
         
     def initialize_teleporters(lvl, teleporters):
@@ -88,13 +92,30 @@ def copy_coord(lvl, row_coord, col_coord, seg_type, offset):
     seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))
     return seg.coord.copy(offset)
 
-def json_to_named_tuple(var_names, dico):
-    JsonObject = namedtuple('JsonObject', var_names)
-    values = []
-    for var in var_names:
-        if var not in dico:
+# def json_to_named_tuple(var_names, dico):
+#     JsonObject = namedtuple('JsonObject', var_names)
+#     values = []
+#     for var in var_names:
+#         if var not in dico:
+#             print("error : attribute not found in json config file ")
+#             return None
+#         values.append(dico[var])
+    
+#     return JsonObject(*values)
+
+def json_to_named_tuple(mandatory_names, dico):
+    # Vérifie la présence des clés obligatoires
+    for name in mandatory_names:
+        if name not in dico:
             print("error : attribute not found in json config file ")
             return None
-        values.append(dico[var])
+
+    # Remplis les valeurs associées aux clés
+    keys = [x for x in dico.keys()]
+    JsonObject = namedtuple('JsonObject', keys)
+
+    values = []
+    for key in keys:
+        values.append(dico[key])
     
     return JsonObject(*values)
