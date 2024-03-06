@@ -10,7 +10,6 @@ Pour quitter proprement, play après le Game Over
 Pour gagner un niveau, il faut que le nombre de lemmings requis total soit atteint
 
 # INPROGRESS
-- commande reset de niveau
 
 # TODO
 - voir si on peut retirer teleporters si vide
@@ -42,6 +41,7 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 
 # DONE
 
+- commande reset de niveau
 - gagner le niveau
 - générateur de lemmings
 - Simuler les entrées de commande

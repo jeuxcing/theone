@@ -16,10 +16,12 @@ class FakeControler(Thread):
         print(f"Commande: {cmd}")
         if cmd == "play":
             self.game.play()
-        if cmd == "pause":
+        elif cmd == "pause":
             self.game.pause()
+        elif cmd == "reset":
+            self.game.suicide_lemmings()
 
-        if cmd.startswith("rotation"):
+        elif cmd.startswith("rotation"):
             _, row, col = cmd.strip().split(' ')
             self.game.change_ring_rotation(int(row), int(col))
 

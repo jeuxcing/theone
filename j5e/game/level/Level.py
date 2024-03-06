@@ -39,6 +39,8 @@ class Level:
         self.agents.remove(agent)
         if agent in self.lemmings:
             self.lemmings.remove(agent)
+        if agent in self.generators:
+            self.generators.remove(agent)
 
     def connect_all(self) :
         for row_idx, row in enumerate(range(self.grid_size)):

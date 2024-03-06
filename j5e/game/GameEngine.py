@@ -74,6 +74,12 @@ class GameEngine(Thread):
     def play(self):
         self._pause = False
 
+    def suicide_lemmings(self):
+        for generator in self.current_level.generators:
+            self.current_level.delete_agent(generator)
+        for lemming in self.current_level.lemmings:
+            self.current_level.delete_agent(lemming)
+
     def trigger_agents(self):
         for agent in self.current_level.agents:
             self.execute(agent, agent.play())
