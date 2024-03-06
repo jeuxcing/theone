@@ -21,8 +21,9 @@
             "row_coord" : 0,
             "col_coord" : 0,
             "seg_type" : "ROW",
+            "direction" : "FORWARD",
             "offset" : 2,
-            "num_lemmings" : 3
+            "lemming_number" : 3
         }
     ],
     "required_to_win": 3

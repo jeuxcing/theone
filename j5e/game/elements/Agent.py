@@ -53,3 +53,6 @@ class Generator(Agent):
         if self.num_lemmings>0:
             self.num_lemmings -= 1
             return Actions.BIRTH
+        
+    def copy(self):
+        return Generator(self.coord, self.num_lemmings, self.dir, self.period, self.lemming_period)

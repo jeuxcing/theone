@@ -100,6 +100,8 @@ class Level:
         for lemming in self.lemmings:
             l = lemming.copy()
             lvl.add_lemming(l)
+        for generator in self.generators:
+            lvl.add_generator(generator.copy())
         for coord in self.elements:
             lvl.elements[coord.copy()] = [el.copy() for el in self.elements[coord]]
         return lvl
