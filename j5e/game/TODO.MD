@@ -1,7 +1,11 @@
 # NOTICE
 Pour lancer : 
+le jeu :
 python3 -m j5e.game
+le controleur :
 python3 -m j5e.game.faking
+le serveur web :
+python3 -m http.server 8080
 
 Commandes réseau d'interaction avec le jeu : j5e/game/PROTOCOL.md
 
