@@ -1,3 +1,43 @@
-.led_strip {
-    border : black 1px solid;
+table
+{
+    border-spacing: 0px;
+    border-collapse: collapse;
 }
+
+.ring_ledstrip tr {
+    display: inline-block;
+}
+
+.led {
+    width: 8px;
+    height: 8px;
+    border: solid 1px black;
+    margin: 1px;
+}
+
+.ring_ledstrip *
+{
+    margin: 0px;
+    padding: 0px;
+}
+
+.ring_ledstrip .led
+{
+    display: inline-block;
+}
+
+.horizontal_ledstrip .led
+{
+    display: inline-block;
+}
+
+.vertical_ledstrip .led {
+    display: block;    
+}
+
+.ledstrip {
+    display: inline-block;
+    border : red 1px solid;
+    padding: 0px;
+}
+
