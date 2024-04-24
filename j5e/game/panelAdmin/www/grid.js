@@ -52,7 +52,6 @@ class RingLedStrip {
         let tds = "<tr>"+("<td></td>".repeat(5)) + "</tr>";
         this.div.innerHTML = "<table>" + tds.repeat(5) + "</table>";
         let table = div.children[0].children[0];
-        console.log(table.children[0].children);
 
         // Setup the leds
         let coordinates = [
@@ -64,7 +63,6 @@ class RingLedStrip {
         ];
         
         // Create leds
-        console.log(table.children);
         this.leds = coordinates.map((coords) => {
             return new Led(table.children[coords[0]].children[coords[1]]);
         });

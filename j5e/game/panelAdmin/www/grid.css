@@ -2,10 +2,21 @@ table
 {
     border-spacing: 0px;
     border-collapse: collapse;
+    padding: 0px;
+    margin: 0px;
 }
 
-.ring_ledstrip tr {
+.ring_ledstrip tr{
+    padding: 0px;
+    margin: 0px;
+}
+
+.ring_ledstrip td {
     display: inline-block;
+    padding: 0px;
+    margin: 0px;
+    min-width: 10px;
+    min-height: 10px;
 }
 
 .led {

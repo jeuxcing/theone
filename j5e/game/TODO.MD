@@ -3,7 +3,7 @@ Pour lancer :
 le jeu :
 python3 -m j5e.game
 le controleur :
-python3 -m j5e.game.faking
+python3 -m j5e.game.panelAdmin
 le serveur web :
 python3 -m http.server 8080
 

@@ -10,13 +10,12 @@
 
 ## Visualiseur (simulation)
 
-- hébergé par un serveur python quelque part (comme FakeControler)
-- écran (vue)
+- écran (vue) : en cours
 - platine (contrôleur)
 - liaison câblée (id puis cliqiuable)
 -> javascript (objets)
 
-- V1 : affichage
+- V1 : affichage : en cours
 - V2 : affichage + animation
 
 ## Habillage
