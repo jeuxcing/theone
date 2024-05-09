@@ -33,6 +33,8 @@ class MyRequestHandler(BaseHTTPRequestHandler):
     def get_file_path(self, url):
         # Extract the filename from the URL
         filename = url[1:]  # Remove the leading "/"
+        if len(filename) == 0:
+            filename = "index.html"
         filepath = path.join(WWW_DIRECTORY, filename)
 
         # Check if the file exists
@@ -89,6 +91,8 @@ class ConnectionToGame(Thread):
         self.port = port
         self.letterbox = []
         self.stopped = False
+        self.from_game = None
+        self.update_port = 8087
 
     def send_msg(self, msg):
         self.letterbox.append(msg)
@@ -102,9 +106,14 @@ class ConnectionToGame(Thread):
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     s.connect((self.ip, self.port))
                     print("Connecté au serveur")
+                    
+                    # Création d'une connexion retour
+                    self.from_game = ConnectionFromGame(self.update_port)
+                    self.from_game.start()
+                    sleep(.05)
+                    s.sendall(f"update_socket {self.update_port}".encode("utf-8"))
 
                     while not self.stopped:
-                        print("game socket - boucle générale")
                         # Attend une commande à envoyer
                         while len(self.letterbox) == 0:
                             sleep(.01)
@@ -122,6 +131,27 @@ class ConnectionToGame(Thread):
             except ConnectionRefusedError:
                 print("Pas de serveur de jeu trouvé")
                 sleep(1)
+
+
+class ConnectionFromGame(Thread):
+
+    def __init__(self, port):
+        Thread.__init__(self)
+        self.socket = None
+        self.stopped = False
+        self.port = port
+
+    def stop(self):
+        self.stopped = True
+
+    def run(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
+            self.socket.bind(("127.0.0.1", self.port))
+            self.socket.listen()
+            while not self.stopped:
+                conn, addr = self.socket.accept()
+                conn.setblocking(False)
+
 
 def http_server_start():
     # Specify the IP address and port on which the server will listen

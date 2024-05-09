@@ -20,6 +20,10 @@ class GameEngine(Thread):
         self.current_level = None
         self.current_level_idx = None
         self._pause = True
+        self.stopped = False
+
+    def stop_thread(self):
+        self.stopped = True
 
     def load_levels(self, filepath):
         """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants                
@@ -43,6 +47,11 @@ class GameEngine(Thread):
             self.current_level = self.levels[self.current_level_idx].copy()
             self.pause()
             self.run_current_lvl()
+            
+            # Si thread stoppé
+            if self.stopped:
+                break
+
             if self.current_level.is_won():
                 self.current_level_idx += 1
                 print("Niveau complété :o\n")
@@ -59,6 +68,10 @@ class GameEngine(Thread):
         # boucle d'action des éléments de jeu
         is_over = False
         while (not is_over) and (not self.timer.wait(0.2)):
+            # Si jamais le thread doit se stopper en cours de jeu
+            if self.stopped:
+                return
+            # Boucle normale
             if (not self._pause):
                 print(' Tour n°', i,' : ')
                 self.trigger_agents()
