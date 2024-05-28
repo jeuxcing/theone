@@ -51,7 +51,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
 
         # Send the response with code 200 (OK) and the appropriate MIME type for HTML
         self.send_response(200)
-        types = {"htm":"text/html", "html":"text/html", "css": "text/css", "js": "text/javascript"}
+        types = {"htm":"text/html", "html":"text/html", "css": "text/css", "js": "text/javascript", "ico": "image/vnd.microsoft.icon"}
         ext = filepath[filepath.rfind(".")+1:]
         self.send_header('Content-type', types[ext])
 
@@ -98,6 +98,9 @@ class ConnectionToGame(Thread):
         self.letterbox.append(msg)
 
     def stop(self):
+        self.from_game.stop()
+        self.from_game.join()
+        
         self.stopped = True
 
     def run(self):
@@ -148,9 +151,13 @@ class ConnectionFromGame(Thread):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
             self.socket.bind(("127.0.0.1", self.port))
             self.socket.listen()
+            self.socket.settimeout(0.001)
+
             while not self.stopped:
-                conn, addr = self.socket.accept()
-                conn.setblocking(False)
+                try:
+                    conn, addr = self.socket.accept()
+                except socket.timeout:
+                    continue
 
 
 def http_server_start():
