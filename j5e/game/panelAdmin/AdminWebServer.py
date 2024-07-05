@@ -98,8 +98,9 @@ class ConnectionToGame(Thread):
         self.letterbox.append(msg)
 
     def stop(self):
-        self.from_game.stop()
-        self.from_game.join()
+        if self.from_game is not None:
+            self.from_game.stop()
+            self.from_game.join()
         
         self.stopped = True
 

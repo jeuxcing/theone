@@ -31,6 +31,7 @@ class NetworkControler(Thread):
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.accept_socket:
+            self.accept_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.accept_socket.bind((self.HOST, self.PORT))
             self.accept_socket.listen(5)
             self.accept_socket.settimeout(0.000001)
@@ -49,6 +50,7 @@ class NetworkControler(Thread):
                         raise
                 time.sleep(1)
 
+        print("coucou")
         # Déconnexion des sockets clients d'update
         for sock in self.update_sockets:
             sock.shutdown()
