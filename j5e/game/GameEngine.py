@@ -25,6 +25,9 @@ class GameEngine(Thread):
     def stop_thread(self):
         self.stopped = True
 
+    def set_ctrl(self, controller):
+        self.controller = controller
+
     def load_levels(self, filepath):
         """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants                
         """
@@ -45,6 +48,7 @@ class GameEngine(Thread):
         while (not self.is_over()):
             print(' Level n°', self.current_level_idx)
             self.current_level = self.levels[self.current_level_idx].copy()
+            self.controller.notify()
             self.pause()
             self.run_current_lvl()
             
@@ -98,30 +102,51 @@ class GameEngine(Thread):
             self.execute(agent, agent.play())
 
     def execute(self, agent, action):
+        """ Applique l'action de l'agent
+        :returns: L'ensemble des coordonnées modifiées qu'il faut envoyer au controleur pour redessin
+        """
+
+        modified_coords = set()
+        modified_coords.add(agent.coord)
+        segment = self.current_level.get_segment(agent.coord)
+
         match(action):
             case Actions.MOVE:
-                segment = self.current_level.get_segment(agent.coord)
                 # update agent vector
                 agent.coord, agent.dir = segment.get_next_destination(agent.coord.seg_offset, agent.dir)
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
-                self.apply_elements(agent,elements)
+                modified_coords.update(self.apply_elements(agent,elements))
+                self.controller.notify()
             case Actions.BIRTH:
-                segment = self.current_level.get_segment(agent.coord)
                 self.current_level.add_lemming(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
-    
+                self.controller.notify()
+        
+        modified_coords.add(agent.coord)
+        return modified_coords
+
     def apply_elements(self, agent, elements):
+        """ Applique l'effet des élements sur l'agent
+        :returns: L'ensemble des coordonnées modifiées qu'il faut envoyer au controleur pour redessin
+        """
+        modified_coords = set()
+        modified_coords.add(agent.coord)
+
         for el in elements:
             action = el.receive(agent)
             match(action):
                 case Actions.EXIT:
                     self.current_level.delete_agent(agent)
                     self.current_level.remaining_to_win -= 1
+                    self.controller.notify()
                 case Actions.TELEPORT:
                     agent.coord = el.coord_dest
                     print(agent.name," téléporté en ", agent.coord)
                     new_elements = self.current_level.get_elements(agent.coord)
-                    self.apply_elements(agent, new_elements)
+                    modified_coords.update(self.apply_elements(agent, new_elements))
+
+        modified_coords.add(agent.coord)
+        return modified_coords
 
     def change_ring_rotation(self, row, col):
         self.current_level.reverse_ring(row,col)

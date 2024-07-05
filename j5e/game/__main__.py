@@ -15,6 +15,8 @@ if __name__ == "__main__":
     net_ctrl = NetworkControler(gameEngine)
     net_ctrl.start()
 
+    gameEngine.set_ctrl(net_ctrl)
+
     def signal_handler(sig, frame):
         print('Ctrl+C pressé !')
         net_ctrl.stop()

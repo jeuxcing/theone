@@ -3,9 +3,15 @@ class Led
     constructor(div){
         this.div = div;
         div.classList.add("led");
-        this.set_color(0, 200, 0);
+        //this.set_color(0, 200, 0);
+        this.turnoff();
     }
 
+    turnoff()
+    {
+        this.div.style.backgroundColor = null;
+    }
+    
     set_color(r, g, b)
     {
         this.div.style.backgroundColor = "rgb("+r+", "+g+", "+b+")";

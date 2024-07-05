@@ -25,18 +25,24 @@ class Level:
 
     def add_lemming(self, lemming):
         self.lemmings.append(lemming)
-        self.agents.append(lemming)                
+        self.agents.append(lemming)
+        self.add_element(lemming)
 
     def add_generator(self, generator):
         self.generators.append(generator)
-        self.agents.append(generator)                
+        self.agents.append(generator)  
+        self.add_element(generator)            
 
     def add_element(self, element):
         coord_elements = self.get_elements(element.coord)
         self.elements[element.coord] = coord_elements + [element]
 
+    def rm_element(self, element):
+        self.elements[element.coord].remove(element)
+
     def delete_agent(self, agent):
         self.agents.remove(agent)
+        self.rm_element(agent)
         if agent in self.lemmings:
             self.lemmings.remove(agent)
         if agent in self.generators:

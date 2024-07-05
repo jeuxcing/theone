@@ -29,6 +29,10 @@ class NetworkControler(Thread):
     #     self.update_sockets.append(sock)
 
 
+    def notify(self):
+        print("ctrl notified")
+
+
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.accept_socket:
             self.accept_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

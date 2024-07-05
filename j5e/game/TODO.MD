@@ -15,10 +15,16 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # INPROGRESS
 
+
+
 # TODO
+
+- appel du redessin à partir des actions de jeu  ("coups", par ex : déplacement, téléportation, victoire, défaite, etc.) 
+    - modélisation des actions de jeu
+
+    
 - voir si on peut retirer teleporters si vide
 
-- sockets non bloquants
 - Classe timée qui envoie les commandes
 - capturer le control C pour quitter proprement (pb de port sinon)
 - Plug on/off
@@ -42,9 +48,15 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 - aller plus loin dans le chargement des data json en objets pythons de nos classes..?
 https://pynative.com/python-convert-json-data-into-custom-python-object/
 
+ngs da
+ns level
+    - récupération des éléments modifiés
+        - gestion des éléments sur un level (Map <coordonnée, element>)
+            - appels de add element lors des ajouts de lemmings dans level
+            - méthode de suppression des éléments dans level
+- méthode de suppression des éléments dans level# DONE
 
-# DONE
-
+- sockets non bloquants
 - commande reset de niveau
 - gagner le niveau
 - générateur de lemmings
