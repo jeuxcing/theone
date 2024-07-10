@@ -19,6 +19,9 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
+- sérialization des éléments du level
+   
+
 - appel du redessin à partir des actions de jeu  ("coups", par ex : déplacement, téléportation, victoire, défaite, etc.) 
     - modélisation des actions de jeu
 
@@ -48,8 +51,12 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 - aller plus loin dans le chargement des data json en objets pythons de nos classes..?
 https://pynative.com/python-convert-json-data-into-custom-python-object/
 
-ngs da
-ns level
+
+
+# DONE 
+- sérialisation des exits
+
+ngs dans level
     - récupération des éléments modifiés
         - gestion des éléments sur un level (Map <coordonnée, element>)
             - appels de add element lors des ajouts de lemmings dans level

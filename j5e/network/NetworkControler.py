@@ -1,6 +1,8 @@
 import time
 import socket
 from threading import Thread, Event
+from time import sleep
+from j5e.game.level.LevelSerializer import LevelSerializer
 
 
 class NetworkControler(Thread):
@@ -31,7 +33,7 @@ class NetworkControler(Thread):
 
     def notify(self, notified_object=None):
         # msg_list = notified_object.translate_to_msgs()
-        self.send_update("coucou")
+        self.send_update(notified_object)
         print("ctrl notified")
 
 
@@ -45,7 +47,6 @@ class NetworkControler(Thread):
             while (not self.game.is_over()) and self.running.is_set():
                 try:
                     client_socket, client_address = self.accept_socket.accept()
-                    print("après accept")
                     client_thread = ClientThread(client_socket, self.game, self)
                     client_thread.start()
                     self.clients.append(client_thread)
@@ -92,7 +93,7 @@ class ClientThread(Thread):
             case "update_socket":
                 port = cmd[1]
                 self.ctrl.connect_update(int(port))
-                print("Update socket recu")
+                self.ctrl.notify(LevelSerializer.from_level(self.game.current_level))
             case "play":
                 self.game.play()
             case "pause":

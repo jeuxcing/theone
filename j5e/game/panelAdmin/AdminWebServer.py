@@ -181,14 +181,33 @@ class ConnectionFromGame(Thread):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(("127.0.0.1", self.port))
-            self.socket.settimeout(0.000001)
+            self.socket.settimeout(0.01)
             self.socket.listen()
 
             while not self.stopped:
                 try:
                     conn, addr = self.socket.accept()
+
+                    while not self.stopped:
+                        try:
+                            data = conn.recv(1024)
+                            if not data:
+                                print(data)
+                                break
+                            else:
+                                self.parse_msg(bytes.decode(data, 'utf-8'))
+                        except socket.timeout:
+                            continue
+                        except OSError:
+                            if self.running.is_set():
+                                raise
+                    
                 except socket.timeout:
                     continue
+                
+
+    def parse_msg(self, msg):
+        print(msg)
 
 
 def http_server_start():
