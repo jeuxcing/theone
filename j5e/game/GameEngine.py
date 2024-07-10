@@ -1,6 +1,7 @@
 from threading import Thread
 from multiprocessing import Event
 from os import path
+from sys import stderr
 
 from j5e.game.GameExceptions import OutOfLedsException, NextLedOnOtherSegmentException
 from j5e.game.level.Level import Level
@@ -21,6 +22,7 @@ class GameEngine(Thread):
         self.current_level_idx = None
         self._pause = True
         self.stopped = False
+        self.controller = None
 
     def stop_thread(self):
         self.stopped = True
@@ -29,7 +31,7 @@ class GameEngine(Thread):
         self.controller = controller
 
     def load_levels(self, filepath):
-        """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivants                
+        """ Charge les niveaux depuis une liste de chemin relatifs de json les décrivant                
         """
         with open(filepath) as fp:
             dirpath = path.dirname(path.abspath(filepath))
@@ -48,7 +50,10 @@ class GameEngine(Thread):
         while (not self.is_over()):
             print(' Level n°', self.current_level_idx)
             self.current_level = self.levels[self.current_level_idx].copy()
-            self.controller.notify()
+            if self.controller is not None:
+                self.controller.notify()
+            else:
+                print("ATTENTION: Pas de controleur == pas de mise à jour", file=stderr)
             self.pause()
             self.run_current_lvl()
             

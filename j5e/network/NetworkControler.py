@@ -16,20 +16,22 @@ class NetworkControler(Thread):
         self.running.set()
         self.clients = []
 
-    # # msg : chaine de caractères
-    # def send_update(self, msg):
-    #     # On envoie l'update à tous les clients connectés
-    #     for socket in self.update_sockets:
-    #         socket.sendall(msg.encode("utf-8"))
+    # msg : chaine de caractères
+    def send_update(self, msg):
+        # On envoie l'update à tous les clients connectés
+        for socket in self.update_sockets:
+            socket.sendall(msg.encode("utf-8"))
 
 
-    # def connect_update(self, port):
-    #     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #     sock.connect(("127.0.0.1", port))
-    #     self.update_sockets.append(sock)
+    def connect_update(self, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(("127.0.0.1", port))
+        self.update_sockets.append(sock)
 
 
-    def notify(self):
+    def notify(self, notified_object=None):
+        # msg_list = notified_object.translate_to_msgs()
+        self.send_update("coucou")
         print("ctrl notified")
 
 
@@ -44,7 +46,7 @@ class NetworkControler(Thread):
                 try:
                     client_socket, client_address = self.accept_socket.accept()
                     print("après accept")
-                    client_thread = ClientThread(client_socket, self.game)
+                    client_thread = ClientThread(client_socket, self.game, self)
                     client_thread.start()
                     self.clients.append(client_thread)
                 except socket.timeout:
@@ -54,10 +56,8 @@ class NetworkControler(Thread):
                         raise
                 time.sleep(1)
 
-        print("coucou")
         # Déconnexion des sockets clients d'update
         for sock in self.update_sockets:
-            sock.shutdown()
             sock.close()
 
     
@@ -76,11 +76,12 @@ class NetworkControler(Thread):
         
 
 class ClientThread(Thread):
-    def __init__(self, client_socket, game):
+    def __init__(self, client_socket, game, ctrl):
         super().__init__()
         self.client_socket = client_socket
         self.client_socket.settimeout(0.001)
         self.game = game
+        self.ctrl = ctrl
         self.running = Event()
 
     def parse_cmd(self, cmd):
@@ -88,9 +89,10 @@ class ClientThread(Thread):
         
         cmd = cmd.strip().split()
         match cmd[0]:
-            # case "update_socket":
-            #     port = cmd[1]
-            #     self.connect_update(int(port))
+            case "update_socket":
+                port = cmd[1]
+                self.ctrl.connect_update(int(port))
+                print("Update socket recu")
             case "play":
                 self.game.play()
             case "pause":
@@ -120,4 +122,4 @@ class ClientThread(Thread):
                 if self.running.is_set():
                     raise
 
-            print("fin de connexion client")
+        print("fin de connexion client")

@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs
 from threading import Thread
 from time import sleep
 from urllib.parse import urlparse
+from select import select
 
 
 WWW_DIRECTORY = path.join(getcwd(), "j5e/game/panelAdmin/www")
@@ -104,11 +105,36 @@ class ConnectionToGame(Thread):
         
         self.stopped = True
 
+    def send_letterbox(self, socket):
+        # Envoie les commandes en attente
+        to_send, self.letterbox = self.letterbox, []
+        print(to_send)
+
+        for val in to_send:
+            print(val)
+            socket.sendall(val.encode("utf-8"))
+
+    def check_socket_alive(self, sock):
+        try:
+            # Utilisation de select pour vérifier si le socket est prêt pour la lecture ou l'écriture
+            read_ready, _, _ = select([sock], [], [], 0)
+            if read_ready:
+                # Si le socket est prêt pour la lecture, essayer de lire un petit morceau de données
+                data = sock.recv(1024, socket.MSG_PEEK)
+                if len(data) == 0:
+                    # Si recv retourne 0 octets, cela signifie que la connexion est fermée
+                    return False
+            return True
+        except socket.error:
+            return False
+    
+
     def run(self):
         while not self.stopped:
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     s.connect((self.ip, self.port))
+                    s.settimeout(0.0001)
                     print("Connecté au serveur")
                     
                     # Création d'une connexion retour
@@ -117,21 +143,22 @@ class ConnectionToGame(Thread):
                     sleep(.05)
                     s.sendall(f"update_socket {self.update_port}".encode("utf-8"))
 
-                    while not self.stopped:
-                        # Attend une commande à envoyer
-                        while len(self.letterbox) == 0:
-                            sleep(.01)
-                            if self.stopped:
-                                return
-                        # Envoie les commandes en attente
-                        to_send, self.letterbox = self.letterbox, []
-                        print(to_send)
-                        for val in to_send:
-                            print(val)
-                            s.sendall(val.encode("utf-8"))
+                    while True:
+                        # 0 - Vérifier qu'on est pas arrété
+                        if self.stopped:
+                            break
 
-                            if val == "quit":
-                                return
+                        # 1 - Verifier la connexion
+                        is_alive = self.check_socket_alive(s)
+
+                        if not is_alive:
+                            self.from_game.stop()
+                            break
+
+                        # 2 - Envoyer les messages en attente
+                        if len(self.letterbox) > 0:
+                            self.send_letterbox(s)
+                        
             except ConnectionRefusedError:
                 print("Pas de serveur de jeu trouvé")
                 sleep(1)
@@ -147,12 +174,15 @@ class ConnectionFromGame(Thread):
 
     def stop(self):
         self.stopped = True
+        sleep(.1)
+        self.socket.close()
 
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.socket:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(("127.0.0.1", self.port))
+            self.socket.settimeout(0.000001)
             self.socket.listen()
-            self.socket.settimeout(0.001)
 
             while not self.stopped:
                 try:
