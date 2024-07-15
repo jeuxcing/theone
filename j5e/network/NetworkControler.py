@@ -33,6 +33,8 @@ class NetworkControler(Thread):
 
     def notify(self, notified_object=None):
         # msg_list = notified_object.translate_to_msgs()
+        if notified_object is None:  
+            return
         self.send_update(notified_object)
         print("ctrl notified")
 
@@ -99,7 +101,7 @@ class ClientThread(Thread):
             case "pause":
                 self.game.pause()
             case  "reset":
-                self.game.suicide_lemmings()
+                self.game.suicide_agents()
             case "rotation":
                 row, col = cmd[1:]
                 self.game.change_ring_rotation(int(row), int(col))

@@ -96,14 +96,14 @@ class GameEngine(Thread):
     def play(self):
         self._pause = False
 
-    def suicide_lemmings(self):
-        for generator in self.current_level.generators:
-            self.current_level.delete_agent(generator)
-        for lemming in self.current_level.lemmings:
-            self.current_level.delete_agent(lemming)
+    def suicide_agents(self):
+        self.current_level.agents.clear()
 
     def trigger_agents(self):
-        for agent in self.current_level.agents:
+        agent_lst = []
+        for lst_agent in self.current_level.agents.values():
+            agent_lst.extend(lst_agent)
+        for agent in agent_lst:
             self.execute(agent, agent.play())
 
     def execute(self, agent, action):
@@ -118,13 +118,16 @@ class GameEngine(Thread):
         match(action):
             case Actions.MOVE:
                 # update agent vector
+                print(agent.coord)
+                self.current_level.delete_agent(agent)
                 agent.coord, agent.dir = segment.get_next_destination(agent.coord.seg_offset, agent.dir)
+                self.current_level.add_agent(agent)
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
                 modified_coords.update(self.apply_elements(agent,elements))
                 self.controller.notify()
             case Actions.BIRTH:
-                self.current_level.add_lemming(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
+                self.current_level.add_agent(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
                 self.controller.notify()
         
         modified_coords.add(agent.coord)
@@ -145,10 +148,13 @@ class GameEngine(Thread):
                     self.current_level.remaining_to_win -= 1
                     self.controller.notify()
                 case Actions.TELEPORT:
+                    self.current_level.rm_element(agent)
                     agent.coord = el.coord_dest
+                    self.current_level.add_element(agent)
                     print(agent.name," téléporté en ", agent.coord)
                     new_elements = self.current_level.get_elements(agent.coord)
                     modified_coords.update(self.apply_elements(agent, new_elements))
+    
 
         modified_coords.add(agent.coord)
         return modified_coords

@@ -19,4 +19,4 @@ class LevelSerializer:
             return ""
         
     def from_coord(coord):
-        return "{row:" + str(coord.row) + ", col:" + str(coord.col) + ", type:" + str(coord.segment_type) + ", offset:" + str(coord.seg_offset) + "}"
+        return "{row:" + str(coord.row) + ", col:" + str(coord.col) + ", type:" + str(coord.segment_type.name) + ", offset:" + str(coord.seg_offset) + "}"

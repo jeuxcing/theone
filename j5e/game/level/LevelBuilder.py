@@ -53,7 +53,7 @@ class LevelBuilder:
             dir = Direction.__getitem__(data.direction)
             coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
             
-            lvl.add_lemming(Lemming(data.name, coord, dir))
+            lvl.add_agent(Lemming(data.name, coord, dir))
             
 
     def initialize_exits(lvl, exits):
@@ -90,7 +90,7 @@ class LevelBuilder:
             coord = copy_coord(lvl, data.row_coord, data.col_coord, data.seg_type, data.offset)
             num_lemmings = data.lemming_number
 
-            lvl.add_generator(Generator(coord, num_lemmings, dir))
+            lvl.add_agent(Generator(coord, num_lemmings, dir))
 
 def copy_coord(lvl, row_coord, col_coord, seg_type, offset):
     seg = lvl.get_segment(Coordinate(row_coord, col_coord, SegType[seg_type]))

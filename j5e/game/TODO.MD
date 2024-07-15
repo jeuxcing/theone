@@ -26,7 +26,9 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
     - modélisation des actions de jeu
 
     
-- voir si on peut retirer teleporters si vide
+- voir si on peut retirer teleporters dans json si vide
+
+- voir si dans Level on peut tout mettre dans elements en se passant de agents, lemings et generators
 
 - Classe timée qui envoie les commandes
 - capturer le control C pour quitter proprement (pb de port sinon)

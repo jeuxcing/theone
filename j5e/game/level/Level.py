@@ -1,4 +1,5 @@
 from j5e.game.level.Geometry import Ring, Coordinate, SegType, Line
+from j5e.game.elements.Agent import Lemming, Generator
 
 
 class Level:
@@ -11,9 +12,7 @@ class Level:
         self.rings = [[Ring(Coordinate(row,col,SegType.RING)) for col in range(grid_size)] for row in range(grid_size) ]
         self.rows = [[Line(Coordinate(row,col,SegType.ROW)) for col in range(grid_size-1)] for row in range(grid_size) ]
         self.cols = [[Line(Coordinate(row,col,SegType.COL)) for col in range(grid_size)] for row in range(grid_size-1) ]
-        self.lemmings = []
-        self.generators = []
-        self.agents = []
+        self.agents = {}
         self.elements = {}
         self.remaining_to_win = float("inf")
      
@@ -23,30 +22,22 @@ class Level:
         else:
             return self.elements[coord]
 
-    def add_lemming(self, lemming):
-        self.lemmings.append(lemming)
-        self.agents.append(lemming)
-        self.add_element(lemming)
-
-    def add_generator(self, generator):
-        self.generators.append(generator)
-        self.agents.append(generator)  
-        self.add_element(generator)            
+    def add_agent(self, agent):
+        if agent.coord not in self.agents:
+            self.agents[agent.coord] = [] 
+        self.agents[agent.coord].append(agent)
 
     def add_element(self, element):
         coord_elements = self.get_elements(element.coord)
         self.elements[element.coord] = coord_elements + [element]
 
     def rm_element(self, element):
+        print(self.elements)
+        print(element)
         self.elements[element.coord].remove(element)
 
     def delete_agent(self, agent):
-        self.agents.remove(agent)
-        self.rm_element(agent)
-        if agent in self.lemmings:
-            self.lemmings.remove(agent)
-        if agent in self.generators:
-            self.generators.remove(agent)
+        self.agents[agent.coord].remove(agent)
 
     def connect_all(self) :
         for row_idx, row in enumerate(range(self.grid_size)):
@@ -95,7 +86,13 @@ class Level:
     def is_lost(self):
         if self.remaining_to_win == float('inf'):
             return False
-        return len(self.lemmings) + sum([gen.num_lemmings for gen in self.generators]) < self.remaining_to_win
+
+        nb_lemmings = 0        
+        for agent_list in self.agents.values():
+            for agent in agent_list:                
+                if type(agent) is Lemming : nb_lemmings += 1
+                elif type(agent) is Generator: nb_lemmings += agent.num_lemmings
+        return nb_lemmings < self.remaining_to_win
 
     def copy(self):
         lvl = Level(self.grid_size)
@@ -105,13 +102,13 @@ class Level:
                 for path_idx, path in enumerate(ring.paths):
                     if path is not None:
                         lvl.add_connection_to_ring(ring_row_idx, ring_col_idx, path_idx)
-        for lemming in self.lemmings:
-            l = lemming.copy()
-            lvl.add_lemming(l)
-        for generator in self.generators:
-            lvl.add_generator(generator.copy())
-        for coord in self.elements:
-            lvl.elements[coord.copy()] = [el.copy() for el in self.elements[coord]]
+        for agent_list in self.agents.values():
+            for agent in agent_list:
+                a = agent.copy()
+                lvl.add_agent(a)
+        for element_list in self.elements.values():
+            for el in element_list:
+                lvl.add_element(el.copy())
         return lvl
 
     def reverse_ring(self, row, col):
