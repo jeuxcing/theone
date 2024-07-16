@@ -14,7 +14,7 @@
         ],
         "ring_disconnections" : []
     },
-    "lemmings" : [
+    "Lemming" : [
         {
             "name" : "Lemmiwings",
             "row_coord" : 0,
@@ -24,7 +24,7 @@
             "direction" : "FORWARD"
         }
     ],
-    "exits" : [
+    "Exit" : [
         {
             "row_coord" : 0,
             "col_coord" : 1,

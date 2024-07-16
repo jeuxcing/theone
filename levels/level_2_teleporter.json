@@ -8,7 +8,7 @@
         ]
 
     },
-    "lemmings" : [
+    "Lemming" : [
         {
             "name" : "Lemmiwings",
             "row_coord" : 0,
@@ -18,7 +18,7 @@
             "direction" : "FORWARD"
         }
     ],
-    "exits" : [
+    "Exit" : [
         {
             "row_coord" : 0,
             "col_coord" : 1,
@@ -27,7 +27,7 @@
             "required_lemmings" : 1
         }
     ],
-    "teleporters" : [
+    "Teleporter" : [
         {
             "row_coord" : 0,
             "col_coord" : 0,

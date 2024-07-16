@@ -5,7 +5,7 @@
         "ring_connections" : [],
         "ring_disconnections" : []
     },
-    "exits" : [
+    "Exit" : [
         {
             "row_coord" : 0,
             "col_coord" : 0,
@@ -14,7 +14,7 @@
             "required_lemmings" : 3
         }
     ],
-    "generators" : [
+    "Generator" : [
         {
             "row_coord" : 0,
             "col_coord" : 0,

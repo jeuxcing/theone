@@ -19,22 +19,23 @@ class LevelSerializer:
             for agent in ag_list:
                 agents.extend([ LevelSerializer.from_agent(coord, agent)])
 
-        return '{elements: [' + ",".join(elements) + ']}' + '\n' + '{agents: [' + ",".join(agents) + ']}' #+ '\n' + json.dumps(lvl)
+        return '{elements: [' + ",".join(elements) + ']}' + '\n' + '{agents: [' + ",".join(agents) + ']}' 
+    #+ '\n' + json.dumps(lvl)
     
     def from_element(coord, elem):
         res = LevelSerializer.from_coord(coord)
         if type(elem) is Exit:
-            res = 'exit: {' + res + ',' + str(elem.remaining_lemmings) + '}' 
+            res = 'Exit: {' + res + ',' + str(elem.remaining_lemmings) + '}' 
         elif type(elem) is Teleporter:
-            res = 'teleporter {' + res + LevelSerializer.from_coord(elem.coord_dest) + '}'
+            res = 'Teleporter {' + res + LevelSerializer.from_coord(elem.coord_dest) + '}'
         return res
     
     def from_agent(coord, agent):
         res = LevelSerializer.from_coord(coord)
         if type(agent) is Lemming:
-            res = 'lemming: {' + res + '}' 
+            res = 'Lemming: {' + res + '}' 
         elif type(agent) is Generator:
-            res = 'generator {' + res + '}'
+            res = 'Generator {' + res + '}'
         return res
     
     def from_coord(coord):

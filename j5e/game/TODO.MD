@@ -18,8 +18,6 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
-- intégrer l'envoi du niveau sérialisé à chaque début de niveau, msg = load_lvl ???
-
 - sérialization des éléments du level
 
 - appel du redessin à partir des actions de jeu  ("coups", par ex : déplacement, téléportation, victoire, défaite, etc.) 
@@ -27,6 +25,8 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 - Classe timée qui envoie les commandes
 - Plug on/off
+
+- intégrer l'envoi du niveau sérialisé à chaque début de niveau, msg = load_lvl ???
 
 - ajouter des items de gameplay
     - aiguillage

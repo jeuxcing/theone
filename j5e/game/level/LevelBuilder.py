@@ -15,21 +15,21 @@ class LevelBuilder:
     def load_level_from_json(json_file_path):
         json_level = json.loads(open(json_file_path).read())
         
-        mandatory_names = ["grid_size", "geometry", "exits", "required_to_win"]
-        # optional : "generators" "teleporters" "lemmings"
+        mandatory_names = ["grid_size", "geometry", "Exit", "required_to_win"]
+        # optional : "Generator" "Teleporter" "Lemming"
         data = json_to_named_tuple(mandatory_names, json_level)
         
         file_name = path.basename(json_file_path)
         lvl = Level(data.grid_size, file_name)
         LevelBuilder.initialize_geomtry(lvl,data.geometry)
-        if hasattr(data, "lemmings"):
-            LevelBuilder.initialize_lemmings(lvl,data.lemmings)
+        if hasattr(data, "Lemming"):
+            LevelBuilder.initialize_lemmings(lvl,data.Lemming)
         lvl.remaining_to_win = data.required_to_win
-        LevelBuilder.initialize_exits(lvl,data.exits)
-        if hasattr(data, "teleporters"):
-            LevelBuilder.initialize_teleporters(lvl,data.teleporters)
-        if hasattr(data, "generators"):
-            LevelBuilder.initialize_generators(lvl,data.generators)
+        LevelBuilder.initialize_exits(lvl,data.Exit)
+        if hasattr(data, "Teleporter"):
+            LevelBuilder.initialize_teleporters(lvl,data.Teleporter)
+        if hasattr(data, "Generator"):
+            LevelBuilder.initialize_generators(lvl,data.Generator)
         return lvl
 
     def initialize_geomtry(lvl, geometry):
