@@ -18,19 +18,14 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
+- intégrer l'envoi du niveau sérialisé à chaque début de niveau, msg = load_lvl ???
+
 - sérialization des éléments du level
-   
 
 - appel du redessin à partir des actions de jeu  ("coups", par ex : déplacement, téléportation, victoire, défaite, etc.) 
     - modélisation des actions de jeu
 
-    
-- voir si on peut retirer teleporters dans json si vide
-
-- voir si dans Level on peut tout mettre dans elements en se passant de agents, lemings et generators
-
 - Classe timée qui envoie les commandes
-- capturer le control C pour quitter proprement (pb de port sinon)
 - Plug on/off
 
 - ajouter des items de gameplay
@@ -55,6 +50,13 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 
 
 # DONE 
+
+- capturer le control C pour quitter proprement (pb de port sinon)
+
+- suppression des teleporters et lemmings dans json si vide
+
+- dans Level, tout mettre dans agents en se passant de lemings et generators
+
 - sérialisation des exits
 
 ngs dans level

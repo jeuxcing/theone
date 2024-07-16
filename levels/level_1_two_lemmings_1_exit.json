@@ -36,7 +36,6 @@
             "required_lemmings" : 2
         }
     ],
-    "teleporters" : [],
     "required_to_win": 2
 
 }

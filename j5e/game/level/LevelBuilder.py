@@ -15,14 +15,15 @@ class LevelBuilder:
     def load_level_from_json(json_file_path):
         json_level = json.loads(open(json_file_path).read())
         
-        mandatory_names = ["grid_size", "geometry", "lemmings", "exits", "required_to_win"]
-        # optional : "generators" "teleporters"
+        mandatory_names = ["grid_size", "geometry", "exits", "required_to_win"]
+        # optional : "generators" "teleporters" "lemmings"
         data = json_to_named_tuple(mandatory_names, json_level)
         
         file_name = path.basename(json_file_path)
         lvl = Level(data.grid_size, file_name)
         LevelBuilder.initialize_geomtry(lvl,data.geometry)
-        LevelBuilder.initialize_lemmings(lvl,data.lemmings)
+        if hasattr(data, "lemmings"):
+            LevelBuilder.initialize_lemmings(lvl,data.lemmings)
         lvl.remaining_to_win = data.required_to_win
         LevelBuilder.initialize_exits(lvl,data.exits)
         if hasattr(data, "teleporters"):
