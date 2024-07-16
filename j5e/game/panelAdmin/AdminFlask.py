@@ -2,26 +2,48 @@ from select import select
 import socket
 
 from threading import Thread
+import multiprocessing
 from time import sleep
 import time
 
-
+import requests
 from flask import Flask, send_from_directory, send_file, request, Response
 
 
 
 class ServerFlask:
 
-    def __init__(self):
-        self.app = Flask('Test flask')
-        self.game = ConnectionToGame()
-        self.game.start()
+    def __init__(self, port=8080):
+        self.port = port
+        self.app = Flask('Flask server')
+        self.game_connect = ConnectionToGame()
+        self.game_connect.start()
 
     def start(self):
         self.init()
-        self.app.run(host='0.0.0.0', port=8080, debug=True)
+        def thread_fun():
+            self.app.run(host='0.0.0.0', port=self.port, threaded=True)
+        self.thread = multiprocessing.Process(target=thread_fun)
+        self.thread.start()
+        
+    def stop(self):
+        # requests.post(f'http://127.0.0.1:{self.port}/shutdown')
+        self.thread.terminate()
+        self.game_connect.stop()
+        print("Shutting down flask server...")
+        self.game_connect.join()
+        self.thread.join()
+        
 
     def init(self):
+        @self.app.route('/shutdown', methods=['POST'])
+        def shutdown():
+            shutdown_func = request.environ.get('werkzeug.server.shutdown')
+            if shutdown_func is None:
+                raise RuntimeError('Not running with the Werkzeug Server')
+            shutdown_func()
+            return 'Server shutting down...'
+        
         @self.app.route('/<path:path>')
         def send_www(path):
             return send_from_directory('j5e/game/panelAdmin/www', path)
@@ -36,7 +58,7 @@ class ServerFlask:
             liste_de_cmd = frozenset(["play", "pause", "reset", "rotation"])
             for key in request.args.keys():
                 if key in liste_de_cmd:                
-                    self.game.send_msg(key)
+                    self.game_connect.send_msg(key)
             return 'Ok'
 
         @self.app.route('/gameStatus')    
@@ -152,12 +174,12 @@ class ConnectionFromGame(Thread):
             while not self.stopped:
                 try:
                     conn, addr = self.socket.accept()
+                    conn.settimeout(0.01)
 
                     while not self.stopped:
                         try:
                             data = conn.recv(1024)
                             if not data:
-                                print(data)
                                 break
                             else:
                                 self.parse_msg(bytes.decode(data, 'utf-8'))
@@ -173,5 +195,4 @@ class ConnectionFromGame(Thread):
 
     def parse_msg(self, msg):
         print(msg)
-
 

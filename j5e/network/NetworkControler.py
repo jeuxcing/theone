@@ -22,8 +22,12 @@ class NetworkControler(Thread):
     def send_update(self, msg):
         # On envoie l'update à tous les clients connectés
         for socket in self.update_sockets:
-            socket.sendall(msg.encode("utf-8"))
-
+            try:
+                socket.sendall(msg.encode("utf-8"))
+            except BrokenPipeError:
+                self.update_sockets.remove(socket)
+                self.send_update(msg)
+                break
 
     def connect_update(self, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

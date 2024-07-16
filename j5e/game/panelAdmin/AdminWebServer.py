@@ -208,26 +208,3 @@ class ConnectionFromGame(Thread):
 
     def parse_msg(self, msg):
         print(msg)
-
-
-def http_server_start():
-    # Specify the IP address and port on which the server will listen
-    address = ('', 8080)
-    
-    # Create an instance of the server using our custom request handler
-    server = HTTPServer(address, MyRequestHandler)
-    print('Server started on {}:{}'.format(*address))
-
-    global game
-    game = ConnectionToGame()
-    game.start()
-    
-    # Start the server and keep it running until manually stopped
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        server.shutdown()
-        print('Server stopped.')
-
-    game.stop()
-    game.join()
