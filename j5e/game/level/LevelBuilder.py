@@ -1,5 +1,6 @@
 import json
 from collections import namedtuple
+from os import path
 from j5e.game.level.Geometry import Direction, Coordinate, SegType
 from j5e.game.elements.Element import Exit, Teleporter
 from j5e.game.elements.Agent import Lemming, Generator
@@ -18,7 +19,8 @@ class LevelBuilder:
         # optional : "generators" "teleporters"
         data = json_to_named_tuple(mandatory_names, json_level)
         
-        lvl = Level(data.grid_size)
+        file_name = path.basename(json_file_path)
+        lvl = Level(data.grid_size, file_name)
         LevelBuilder.initialize_geomtry(lvl,data.geometry)
         LevelBuilder.initialize_lemmings(lvl,data.lemmings)
         lvl.remaining_to_win = data.required_to_win

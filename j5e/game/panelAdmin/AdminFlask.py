@@ -3,9 +3,10 @@ import socket
 
 from threading import Thread
 from time import sleep
+import time
 
 
-from flask import Flask, send_from_directory, send_file, request
+from flask import Flask, send_from_directory, send_file, request, Response
 
 
 
@@ -18,7 +19,7 @@ class ServerFlask:
 
     def start(self):
         self.init()
-        self.app.run(host='0.0.0.0', port=8080)
+        self.app.run(host='0.0.0.0', port=8080, debug=True)
 
     def init(self):
         @self.app.route('/<path:path>')
@@ -37,6 +38,16 @@ class ServerFlask:
                 if key in liste_de_cmd:                
                     self.game.send_msg(key)
             return 'Ok'
+
+        @self.app.route('/gameStatus')    
+        def gameUpdate():
+            def event_handler():
+                while True:
+                    time.sleep(5)
+                    yield "coucou"
+
+            return Response(event_handler(), mimetype='text/event-stream')
+        
         
         
 class ConnectionToGame(Thread):

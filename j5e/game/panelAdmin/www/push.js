@@ -1,5 +1,5 @@
 
-const eventSource = new EventSource('/stream');
+const eventSource = new EventSource('/gameStatus');
 
 eventSource.onmessage = function(event) {
     const message = event.data;

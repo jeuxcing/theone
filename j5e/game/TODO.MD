@@ -4,7 +4,8 @@ le jeu :
 python3 -m j5e.game
 le controleur :
 python3 -m j5e.game.panelAdmin
-le serveur web :
+
+un serveur web simple :
 python3 -m http.server 8080
 
 Commandes réseau d'interaction avec le jeu : j5e/game/PROTOCOL.md
@@ -14,8 +15,6 @@ Pour quitter proprement, play après le Game Over
 Pour gagner un niveau, il faut que le nombre de lemmings requis total soit atteint
 
 # INPROGRESS
-
-
 
 # TODO
 

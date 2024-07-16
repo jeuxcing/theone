@@ -4,7 +4,7 @@ from j5e.game.elements.Agent import Lemming, Generator
 
 class Level:
 
-    def __init__(self, grid_size):
+    def __init__(self, grid_size, name):
         """
         :param int grid_size: nombre de ligne et colonnes de la grille (hypothèse : carrée) 
         """
@@ -15,6 +15,7 @@ class Level:
         self.agents = {}
         self.elements = {}
         self.remaining_to_win = float("inf")
+        self.name = name
      
     def get_elements(self, coord):
         if coord not in self.elements.keys():
@@ -95,7 +96,7 @@ class Level:
         return nb_lemmings < self.remaining_to_win
 
     def copy(self):
-        lvl = Level(self.grid_size)
+        lvl = Level(self.grid_size, self.name)
         lvl.remaining_to_win = self.remaining_to_win
         for ring_row_idx, ring_row in enumerate(self.rings):
             for ring_col_idx, ring in enumerate(ring_row):

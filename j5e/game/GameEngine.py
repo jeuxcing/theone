@@ -48,8 +48,8 @@ class GameEngine(Thread):
         
     def run(self):
         while (not self.is_over()):
-            print(' Level n°', self.current_level_idx)
             self.current_level = self.levels[self.current_level_idx].copy()
+            print('Level', self.current_level.name)
             if self.controller is not None:
                 self.controller.notify()
             else:
