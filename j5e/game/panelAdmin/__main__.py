@@ -1,6 +1,7 @@
 # from j5e.game.panelAdmin.AdminWebServer import http_server_start
 import time
-from j5e.game.panelAdmin.AdminFlask import ServerFlask, ConnectionToGame
+import os
+from j5e.game.panelAdmin.AdminFlask import ServerFlask
 
 
 
@@ -24,4 +25,5 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+    os._exit(0)
     

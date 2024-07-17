@@ -23,16 +23,13 @@ class ServerFlask:
         self.init()
         def thread_fun():
             self.app.run(host='0.0.0.0', port=self.port, threaded=True)
-        self.thread = multiprocessing.Process(target=thread_fun)
+        self.thread = Thread(target=thread_fun)
         self.thread.start()
         
     def stop(self):
         # requests.post(f'http://127.0.0.1:{self.port}/shutdown')
-        self.thread.terminate()
         self.game_connect.stop()
-        print("Shutting down flask server...")
         self.game_connect.join()
-        self.thread.join()
         
 
     def init(self):
@@ -83,7 +80,9 @@ class ConnectionToGame(Thread):
         self.update_port = 8087
 
     def send_msg(self, msg):
+        print(hex(id(self)))
         self.letterbox.append(msg)
+        print(len(self.letterbox), self.letterbox)
 
     def stop(self):
         if self.from_game is not None:
@@ -95,10 +94,9 @@ class ConnectionToGame(Thread):
     def send_letterbox(self, socket):
         # Envoie les commandes en attente
         to_send, self.letterbox = self.letterbox, []
-        print(to_send)
 
         for val in to_send:
-            print(val)
+            print("sending:", val)
             socket.sendall(val.encode("utf-8"))
 
     def check_socket_alive(self, sock):
