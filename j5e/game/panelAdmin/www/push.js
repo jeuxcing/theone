@@ -1,12 +1,13 @@
 
-const eventSource = new EventSource('/gameStatus');
+const status_update = new EventSource('/gameStatus');
+console.log("J'ai bien chargé");
 
-eventSource.onmessage = function(event) {
+status_update.onmessage = function(event) {
     const message = event.data;
     console.log("Message from server:", message);
     // Mettre à jour l'interface utilisateur en fonction du message
 };
 
-eventSource.onerror = function(error) {
+status_update.onerror = function(error) {
     console.error("SSE error:", error);
 };

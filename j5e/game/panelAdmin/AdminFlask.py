@@ -5,6 +5,7 @@ from threading import Thread
 import multiprocessing
 from time import sleep
 import time
+from queue import Queue, Full
 
 import requests
 from flask import Flask, send_from_directory, send_file, request, Response
@@ -16,7 +17,8 @@ class ServerFlask:
     def __init__(self, port=8080):
         self.port = port
         self.app = Flask('Flask server')
-        self.game_connect = ConnectionToGame()
+        self.msgs_to_webclients = Queue()
+        self.game_connect = ConnectionToGame(self.msgs_to_webclients)
         self.game_connect.start()
 
     def start(self):
@@ -60,17 +62,20 @@ class ServerFlask:
 
         @self.app.route('/gameStatus')    
         def gameUpdate():
+            print("SSE request received")
             def event_handler():
                 while True:
-                    time.sleep(5)
-                    yield "coucou"
+                    msg = self.msgs_to_webclients.get()
+                    msg = f"data: {msg}\n\n"
+                    print("MESSAGE", msg)
+                    yield msg
 
             return Response(event_handler(), mimetype='text/event-stream')
         
         
         
 class ConnectionToGame(Thread):
-    def __init__(self, ip="127.0.0.1", port=65432):
+    def __init__(self, msg_queue, ip="127.0.0.1", port=65432):
         Thread.__init__(self)
         self.ip = ip
         self.port = port
@@ -78,6 +83,7 @@ class ConnectionToGame(Thread):
         self.stopped = False
         self.from_game = None
         self.update_port = 8087
+        self.msg_queue = msg_queue
 
     def send_msg(self, msg):
         print(hex(id(self)))
@@ -123,7 +129,7 @@ class ConnectionToGame(Thread):
                     print("Connecté au serveur")
                     
                     # Création d'une connexion retour
-                    self.from_game = ConnectionFromGame(self.update_port)
+                    self.from_game = ConnectionFromGame(self.update_port, self.msg_queue)
                     self.from_game.start()
                     sleep(.05)
                     s.sendall(f"update_socket {self.update_port}".encode("utf-8"))
@@ -151,11 +157,12 @@ class ConnectionToGame(Thread):
 
 class ConnectionFromGame(Thread):
 
-    def __init__(self, port):
+    def __init__(self, port, msg_queue):
         Thread.__init__(self)
         self.socket = None
         self.stopped = False
         self.port = port
+        self.msg_queue = msg_queue
 
     def stop(self):
         self.stopped = True
@@ -192,5 +199,6 @@ class ConnectionFromGame(Thread):
                 
 
     def parse_msg(self, msg):
+        self.msg_queue.put_nowait(msg)
         print(msg)
 

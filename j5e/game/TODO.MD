@@ -18,10 +18,13 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
+
+- AdminFlask SSE : mettre en place une Queue par client (sinon un seul reçoit)
+
+- faire le js de la rotation
 - sérialization des éléments du level
 
-- appel du redessin à partir des actions de jeu  ("coups", par ex : déplacement, téléportation, victoire, défaite, etc.) 
-    - modélisation des actions de jeu
+- a    - modélisation des actions de jeu
 
 - Classe timée qui envoie les commandes
 - Plug on/off
