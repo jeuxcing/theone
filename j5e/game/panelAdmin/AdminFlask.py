@@ -17,7 +17,9 @@ class ServerFlask:
     def __init__(self, port=8080):
         self.port = port
         self.app = Flask('Flask server')
+        self.clients = []
         self.msgs_to_webclients = Queue()
+        self.client_msg_queues = {}
         self.game_connect = ConnectionToGame(self.msgs_to_webclients)
         self.game_connect.start()
 
@@ -63,13 +65,35 @@ class ServerFlask:
         @self.app.route('/gameStatus')    
         def gameUpdate():
             print("SSE request received")
-            def event_handler():
-                while True:
-                    msg = self.msgs_to_webclients.get()
-                    msg = f"data: {msg}\n\n"
-                    print("MESSAGE", msg)
-                    yield msg
+            client = request.environ['wsgi.input']
+            # Ajouter la boite de message du client
+            self.clients.append(client)
+            self.client_msg_queues[client] = Queue()
 
+            def event_handler():
+                nonlocal client
+
+                try:
+                    while True:
+                        if not self.msgs_to_webclients.empty():
+                            # Récupérer le message général en attente
+                            msg = self.msgs_to_webclients.get()
+                            # Ajouter ce message dans toutes les boites des clients
+                            for client_name in self.clients:
+                                self.client_msg_queues[client_name].put_nowait(msg)
+
+                        # Traiter le premier message de ma boite client
+                        if not self.client_msg_queues[client].empty():
+                            msg = self.client_msg_queues[client].get()
+                            msg = f"data: {msg}\n\n"
+                            # print("MESSAGE", msg)
+                            yield msg
+
+                        time.sleep(.01)
+                except GeneratorExit:
+                    self.clients.remove(client)
+
+            # return Response(stream_with_context(event_stream()), content_type='text/event-stream')
             return Response(event_handler(), mimetype='text/event-stream')
         
         
