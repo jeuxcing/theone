@@ -57,13 +57,13 @@ class ServerFlask:
         @self.app.get('/gamemsg')
         def gamemsg():
         #localhost:xxx/gamemsg?play
-            liste_de_cmd = frozenset(["play", "pause", "reset", "rotation"])
+            liste_de_cmd = frozenset(["play", "pause", "reset", "rotation", "status"])
             for key in request.args.keys():
                 if key in liste_de_cmd:                
                     self.game_connect.send_msg(key)
             return 'Ok'
 
-        @self.app.route('/gameStatus')    
+        @self.app.route('/abonnementSSE')    
         def gameUpdate():
             print("SSE request received")
             client = str(uuid.uuid4())
@@ -226,5 +226,5 @@ class ConnectionFromGame(Thread):
 
     def parse_msg(self, msg):
         self.msg_queue.put_nowait(msg)
-        print(msg)
+        print("reçu", msg)
 

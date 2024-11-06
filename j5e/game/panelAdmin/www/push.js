@@ -1,5 +1,5 @@
 
-let status_update = new EventSource('/gameStatus');
+let status_update = new EventSource('/abonnementSSE');
 
 let status_observers = [];
 
@@ -18,7 +18,7 @@ status_update.onerror = function(error) {
     // Fermer la connexion SSE et tenter de la rouvrir
     status_update.close();
     setTimeout(function() {
-        status_update = new EventSource('/gameStatus');
+        status_update = new EventSource('/abonnementSSE');
     }, 100);
 };
 

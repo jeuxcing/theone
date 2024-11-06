@@ -160,6 +160,13 @@ class Grid{
         }
         led_strip.leds[offset].set_color(color);
     }
+    
+    reset(){
+        for (let row=0 ; row<this.ledStrips.length ; row++)
+            for (let col=0 ; col<this.ledStrips[row].length ; col++)
+                if (this.ledStrips[row][col])
+                    this.ledStrips[row][col].leds.forEach(led => led.turnoff());
+    }
    
 }
 

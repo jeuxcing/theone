@@ -18,6 +18,13 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
+- modéliser les événements (état d'un élément du jeu / actions qui démarrent ou s'arrêtent)
+-> le contrôleur (ESP) préempte l'évolution de l'état de sa vue associée mais c'est le moteur de jeu qui reste chef d'orchestre et resynchronise au besoin
+- en pause, tout est synchronisé
+- play -> on décentralise mouvements et collisions
+
+- ajouter la possibilité de lancer un niveau choisi (bouton charger niveau + field numéro)
+
 - faire le js de la rotation
 - sérialization des éléments du level
 

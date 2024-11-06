@@ -13,6 +13,8 @@ function main() {
         vue_engine.parse_msg(msg);
     };
     status_observers.push(wrap_function);
+
+    return [grid, vue_engine];
 }
 
-main();
+let grid, vue_engine = main();

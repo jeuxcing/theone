@@ -9,6 +9,7 @@ from j5e.game.level.LevelBuilder import LevelBuilder
 from j5e.game.elements.Element import Actions
 from j5e.game.elements.Agent import Agent, Lemming
 from j5e.game.level.Geometry import Coordinate
+from j5e.game.level.LevelSerializer import LevelSerializer
 
 
 class GameEngine(Thread):
@@ -51,7 +52,9 @@ class GameEngine(Thread):
             self.current_level = self.levels[self.current_level_idx].copy()
             print('Level', self.current_level.name)
             if self.controller is not None:
-                self.controller.notify()
+                self.controller.notify(
+                    LevelSerializer.from_level(self.current_level)
+                )
             else:
                 print("ATTENTION: Pas de controleur == pas de mise à jour", file=stderr)
             self.pause()
@@ -64,7 +67,9 @@ class GameEngine(Thread):
             if self.current_level.is_won():
                 self.current_level_idx += 1
                 print("Niveau complété :o\n")
+                self.controller.notify('{"action":"level_completed"}')
             else:
+                self.controller.notify('{"action":"level_failed"}')
                 print("Gros Nul ! RECOMMENCE §§ \n")
         print("Game Over")
         

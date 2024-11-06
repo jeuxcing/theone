@@ -9,6 +9,12 @@ class VueEngine {
         // charge le message dans un objet json
         let json = JSON.parse(msg);
 
+        // Si le message est une action, traite l'action
+        if (json.action)
+        {
+            this.parse_action(json);
+        }
+
         // Parcours les éléments au sein du json pour mettre à jour la grille
         for (let elem in json.elements)
         {
@@ -31,6 +37,17 @@ class VueEngine {
 
         console.log(row, col, segtype, offset, color);
         this.grid.set_color(row, col, segtype, offset, color);
+    }
+
+    parse_action(json) {
+        let action = json.action;
+        
+        switch (action) {
+            case "level_completed":
+            case "level_failed":
+                this.grid.reset();
+                break;
+        }
     }
 }
 

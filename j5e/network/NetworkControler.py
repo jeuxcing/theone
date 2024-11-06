@@ -96,6 +96,8 @@ class ClientThread(Thread):
         
         cmd = cmd.strip().split()
         match cmd[0]:
+            case "status":
+                self.ctrl.notify(LevelSerializer.from_level(self.game.current_level))
             case "update_socket":
                 port = cmd[1]
                 self.ctrl.connect_update(int(port))
@@ -109,6 +111,8 @@ class ClientThread(Thread):
             case "rotation":
                 row, col = cmd[1:]
                 self.game.change_ring_rotation(int(row), int(col))
+            case _:
+                print(f"Commande inconnue: {cmd[0]}")
 
     def stop(self):
         self.running.clear()
