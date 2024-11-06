@@ -2,6 +2,8 @@ from j5e.game.Actions import Actions
 from j5e.game.elements.Agent import Lemming
 from j5e.game.elements.AbstractElement import AbstractElement
 
+import json
+
 class Exit(AbstractElement):
     def __init__(self, coord, remaining_lemmings=float("inf")):
         super().__init__(coord)
@@ -20,6 +22,13 @@ class Exit(AbstractElement):
             return Actions.EXIT
         return Actions.NOTHING
     
+    def toJson(self):
+        obj = super().toJson()
+        obj['offset'] = 7
+        obj['required_lemmings'] = 3
+        
+        return json.dumps(obj)
+        
     def __repr__(self) -> str:
         return f'Exit ({self.remaining_lemmings}) : {self.coord} '
 

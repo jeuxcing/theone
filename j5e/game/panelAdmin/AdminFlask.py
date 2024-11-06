@@ -6,6 +6,7 @@ import multiprocessing
 from time import sleep
 import time
 from queue import Queue, Full
+import uuid
 
 import requests
 from flask import Flask, send_from_directory, send_file, request, Response
@@ -65,7 +66,7 @@ class ServerFlask:
         @self.app.route('/gameStatus')    
         def gameUpdate():
             print("SSE request received")
-            client = request.environ['wsgi.input']
+            client = str(uuid.uuid4())
             # Ajouter la boite de message du client
             self.clients.append(client)
             self.client_msg_queues[client] = Queue()
@@ -92,6 +93,7 @@ class ServerFlask:
                         time.sleep(.01)
                 except GeneratorExit:
                     self.clients.remove(client)
+                    self.client_msg_queues.pop(client, None)
 
             # return Response(stream_with_context(event_stream()), content_type='text/event-stream')
             return Response(event_handler(), mimetype='text/event-stream')

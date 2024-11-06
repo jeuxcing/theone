@@ -12,31 +12,35 @@ class LevelSerializer:
         elements = []
         for coord, elem_list in lvl.elements.items():
             for elem in elem_list:
-                elements.extend([ LevelSerializer.from_element(coord, elem)])
+                elements.append(LevelSerializer.from_element(coord, elem))
 
         agents = []
         for coord, ag_list in lvl.agents.items():
             for agent in ag_list:
-                agents.extend([ LevelSerializer.from_agent(coord, agent)])
+                agents.append(LevelSerializer.from_agent(coord, agent))
 
-        return '{elements: [' + ",".join(elements) + ']}' + '\n' + '{agents: [' + ",".join(agents) + ']}' 
-    #+ '\n' + json.dumps(lvl)
+        return json.dumps({'elements': elements, 'agents': agents}, separators=(',', ':'))
     
     def from_element(coord, elem):
         res = LevelSerializer.from_coord(coord)
-        if type(elem) is Exit:
-            res = 'Exit: {' + res + ',' + str(elem.remaining_lemmings) + '}' 
-        elif type(elem) is Teleporter:
-            res = 'Teleporter {' + res + LevelSerializer.from_coord(elem.coord_dest) + '}'
+        if isinstance(elem, Exit):
+            res.update({'type': 'Exit', 'remaining_lemmings': elem.remaining_lemmings})
+        elif isinstance(elem, Teleporter):
+            res.update({'type': 'Teleporter', 'coord_dest': LevelSerializer.from_coord(elem.coord_dest)})
         return res
     
     def from_agent(coord, agent):
         res = LevelSerializer.from_coord(coord)
-        if type(agent) is Lemming:
-            res = 'Lemming: {' + res + '}' 
-        elif type(agent) is Generator:
-            res = 'Generator {' + res + '}'
+        if isinstance(agent, Lemming):
+            res.update({'type': 'Lemming'})
+        elif isinstance(agent, Generator):
+            res.update({'type': 'Generator'})
         return res
     
     def from_coord(coord):
-        return "{row:" + str(coord.row) + ", col:" + str(coord.col) + ", type:" + str(coord.segment_type.name) + ", offset:" + str(coord.seg_offset) + "}"
+        return {
+            'row': coord.row,
+            'col': coord.col,
+            'segtype': coord.segment_type.name,
+            'offset': coord.seg_offset
+        }

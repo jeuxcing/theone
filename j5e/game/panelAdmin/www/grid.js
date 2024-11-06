@@ -12,7 +12,13 @@ class Led
         this.div.style.backgroundColor = null;
     }
     
-    set_color(r, g, b)
+    set_color(color)
+    {
+        console.log("set_color", color);
+        this.set_color_rgb(...color_map[color]);
+    }
+
+    set_color_rgb(r, g, b)
     {
         this.div.style.backgroundColor = "rgb("+r+", "+g+", "+b+")";
     }
@@ -129,14 +135,39 @@ class Grid{
             }
         }
     }
+
+    // Fonctions de simplification pour accéder aux ledstrips
+
+    get_ring(row, col){
+        return this.ledStrips[2*row][2*col];
+    }
+
+    get_horizontal_led_strip(row, col){
+        return this.ledStrips[2*row][2*col+1];
+    }
+
+    get_vertical_led_strip(row, col){
+        return this.ledStrips[2*row+1][2*col];
+    }
+
+    set_color(row, col, type, offset, color){
+        console.log(row, col, type, offset, color);
+        let led_strip;
+        switch(type){
+            case 'COL':led_strip=this.get_vertical_led_strip(row, col);
+            case 'ROW':led_strip=this.get_horizontal_led_strip(row, col);
+            case 'RING':led_strip=this.get_ring(row, col);
+        }
+        led_strip.leds[offset].set_color(color);
+    }
    
 }
 
-function main() {
-    let root = document.getElementsByTagName("main")[0];
-    let d = document.createElement("table");
-    root.appendChild(d);
-    new Grid(d);
+color_map = {
+    "exit": [0, 0, 255],
+    "empty": [0, 0, 0],
+    "lemming":[255,255,255],
+    "generator":[255,0,255],
+    "teleporter":[255,255,0]
 }
 
-main();

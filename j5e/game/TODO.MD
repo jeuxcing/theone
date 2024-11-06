@@ -18,13 +18,10 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # TODO
 
-
-- AdminFlask SSE : mettre en place une Queue par client (sinon un seul reçoit)
-
 - faire le js de la rotation
 - sérialization des éléments du level
 
-- a    - modélisation des actions de jeu
+- modélisation des actions de jeu
 
 - Classe timée qui envoie les commandes
 - Plug on/off
@@ -53,6 +50,8 @@ https://pynative.com/python-convert-json-data-into-custom-python-object/
 
 
 # DONE 
+
+- AdminFlask SSE : mettre en place une Queue par client (sinon un seul reçoit)
 
 - capturer le control C pour quitter proprement (pb de port sinon)
 

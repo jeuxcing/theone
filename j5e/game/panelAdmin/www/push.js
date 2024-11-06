@@ -1,10 +1,14 @@
 
 let status_update = new EventSource('/gameStatus');
-console.log("J'ai bien chargé");
+
+let status_observers = [];
 
 status_update.onmessage = function(event) {
     const message = event.data;
-    console.log("Message from server:", message);
+    for (let observer of status_observers) {
+        observer(message);
+    }
+    // console.log("Message from server:", message);
     // Mettre à jour l'interface utilisateur en fonction du message
 };
 
