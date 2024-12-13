@@ -76,6 +76,16 @@ class GameEngine(Thread):
     
     def is_over(self):
         return self.current_level_idx >= len(self.levels)
+    
+    def set_current_lvl(self, idx: int) -> None:
+        # Mettre en pause le jeu
+        self.pause()
+        # Mettre à jour le niveau courant
+        self.current_level_idx = idx
+        # Arreter le niveau courant
+        self.suicide_agents()
+        # Remettre en marche
+        self.play()
 
     def run_current_lvl(self):
         i=0

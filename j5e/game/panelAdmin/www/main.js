@@ -14,6 +14,9 @@ function main() {
     };
     status_observers.push(wrap_function);
 
+    // Création du contrôleur
+    let controller = new Controller(grid);
+
     return [grid, vue_engine];
 }
 

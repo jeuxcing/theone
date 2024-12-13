@@ -57,10 +57,14 @@ class ServerFlask:
         @self.app.get('/gamemsg')
         def gamemsg():
         #localhost:xxx/gamemsg?play
-            liste_de_cmd = frozenset(["play", "pause", "reset", "rotation", "status"])
+            liste_de_cmd = frozenset(["play", "pause", "reset", "rotation", "status", "load_lvl"])
             for key in request.args.keys():
-                if key in liste_de_cmd:                
-                    self.game_connect.send_msg(key)
+                if key in liste_de_cmd:
+                    params = key
+                    if len(request.args) > 1:
+                        params = f"{key}&{'&'.join([f'{k}={v}' for k, v in request.args.items() if k != key])}"
+                    print("params:",params)
+                    self.game_connect.send_msg(params)
             return 'Ok'
 
         @self.app.route('/abonnementSSE')    
@@ -158,7 +162,7 @@ class ConnectionToGame(Thread):
                     self.from_game = ConnectionFromGame(self.update_port, self.msg_queue)
                     self.from_game.start()
                     sleep(.05)
-                    s.sendall(f"update_socket {self.update_port}".encode("utf-8"))
+                    s.sendall(f"update_socket&{self.update_port}".encode("utf-8"))
 
                     while True:
                         # 0 - Vérifier qu'on est pas arrété
@@ -226,5 +230,5 @@ class ConnectionFromGame(Thread):
 
     def parse_msg(self, msg):
         self.msg_queue.put_nowait(msg)
-        print("reçu", msg)
+        # print("reçu", msg)
 

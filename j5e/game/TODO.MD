@@ -16,6 +16,8 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # INPROGRESS
 
+- Mise à jour de l'état des lemmings lors du play. Objectif : voir les déplacements.
+
 # TODO
 
 - modéliser les événements (état d'un élément du jeu / actions qui démarrent ou s'arrêtent)

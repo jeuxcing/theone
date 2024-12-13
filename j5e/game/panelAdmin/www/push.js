@@ -8,7 +8,7 @@ status_update.onmessage = function(event) {
     for (let observer of status_observers) {
         observer(message);
     }
-    // console.log("Message from server:", message);
+    console.log("Message from server:", message);
     // Mettre à jour l'interface utilisateur en fonction du message
 };
 

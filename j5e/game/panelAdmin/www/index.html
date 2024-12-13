@@ -12,13 +12,15 @@
     <main>
       <h1>Jeu cing : panel admin</h1>
       <form>
-        <input type="button" value="Status" />
-        <input type="button" value="Play" />
-        <input type="button" value="Pause" />
-        <input type="button" value="Reset" />
+        <input type="button" id="statusButton" value="Status" />
+        <input type="button" id="playButton" value="Play" />
+        <input type="button" id="pauseButton" value="Pause" />
+        <input type="button" id="resetButton" value="Reset" />
         <input type="text" id="row" value="0" />
         <input type="text" id="col" value="0" />
-        <input type="button" value="Rotation" />
+        <input type="button" id="rotationButton" value="Rotation" />
+        <input type="text" id="lvl" value="0" />
+        <input type="button" id="lvlButton" value="Load level" />
         <p></p>
       </form>
     </main>
@@ -27,5 +29,8 @@
     <script src="VueEngine.js"></script>
     <script src="push.js"></script>
     <script src="main.js"></script>
+    <script>
+      document.getElementById('statusButton').textContent = 'New Status Text';
+    </script>
   </body>
 </html>

@@ -2,12 +2,13 @@ import time
 import socket
 from threading import Thread, Event
 from time import sleep
+from j5e.game import GameEngine
 from j5e.game.level.LevelSerializer import LevelSerializer
 
 
 class NetworkControler(Thread):
 
-    def __init__(self, game):
+    def __init__(self, game: GameEngine) -> None:
         super().__init__()
         self.HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
         self.PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
@@ -83,7 +84,7 @@ class NetworkControler(Thread):
         
 
 class ClientThread(Thread):
-    def __init__(self, client_socket, game, ctrl):
+    def __init__(self, client_socket: socket, game: GameEngine, ctrl: NetworkControler) -> None:
         super().__init__()
         self.client_socket = client_socket
         self.client_socket.settimeout(0.001)
@@ -91,13 +92,13 @@ class ClientThread(Thread):
         self.ctrl = ctrl
         self.running = Event()
 
-    def parse_cmd(self, cmd):
-        print(f"Commande: {cmd}")
+    def parse_cmd(self, cmd: str) -> None:
+        cmd = cmd.strip().split('&')
         
-        cmd = cmd.strip().split()
         match cmd[0]:
             case "status":
-                self.ctrl.notify(LevelSerializer.from_level(self.game.current_level))
+                txt = LevelSerializer.from_level(self.game.current_level)
+                self.ctrl.notify(txt)
             case "update_socket":
                 port = cmd[1]
                 self.ctrl.connect_update(int(port))
@@ -111,8 +112,11 @@ class ClientThread(Thread):
             case "rotation":
                 row, col = cmd[1:]
                 self.game.change_ring_rotation(int(row), int(col))
+            case "load_lvl":
+                self.game.set_current_lvl(int(cmd[1]))
             case _:
                 print(f"Commande inconnue: {cmd[0]}")
+            # /!\ pour ajouter une commande, penser à l'ajouter aux commandes autorisées dans AdminFlask 
 
     def stop(self):
         self.running.clear()
@@ -126,7 +130,8 @@ class ClientThread(Thread):
                 if not data:
                     break
                 else:
-                    self.parse_cmd(bytes.decode(data, 'utf-8'))
+                    msg = bytes.decode(data, 'utf-8')
+                    self.parse_cmd(msg)
             except socket.timeout:
                 continue
             except OSError:
