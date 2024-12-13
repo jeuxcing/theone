@@ -17,6 +17,8 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 # INPROGRESS
 
 - Mise à jour de l'état des lemmings lors du play. Objectif : voir les déplacements.
+=> Message bien arrivé dans le terminal du navigateur web. !! Manque de détails pour pouvoir le parser correctement. Ajouter une entete de message.
+=> Bug au play après avoir envoyé la notification
 
 # TODO
 

@@ -116,9 +116,7 @@ class ConnectionToGame(Thread):
         self.msg_queue = msg_queue
 
     def send_msg(self, msg):
-        print(hex(id(self)))
         self.letterbox.append(msg)
-        print(len(self.letterbox), self.letterbox)
 
     def stop(self):
         if self.from_game is not None:

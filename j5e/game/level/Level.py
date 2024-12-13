@@ -23,6 +23,12 @@ class Level:
         else:
             return self.elements[coord]
 
+    def get_agents(self, coord):
+        if coord not in self.agents.keys():
+            return []
+        else:
+            return self.agents[coord]
+        
     def add_agent(self, agent):
         if agent.coord not in self.agents:
             self.agents[agent.coord] = [] 

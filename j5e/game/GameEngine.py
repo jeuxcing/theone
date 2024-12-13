@@ -118,10 +118,19 @@ class GameEngine(Thread):
         agent_lst = []
         for lst_agent in self.current_level.agents.values():
             agent_lst.extend(lst_agent)
-        for agent in agent_lst:
-            self.execute(agent, agent.play())
 
-    def execute(self, agent, action):
+        modified_coords = set()
+        for agent in agent_lst:
+            modified_coords.update(self.execute(agent, agent.play()))
+
+        # Notifie le controleur avec chaque état de chaque coordonées
+        list_coords_modif = [LevelSerializer.from_coord_content(self.current_level, coord) for coord in modified_coords]
+        print(list_coords_modif)
+
+        self.controller.notify(f'[{", ".join(list_coords_modif)}]')
+        
+
+    def execute(self, agent, action) -> set[Coordinate]:
         """ Applique l'action de l'agent
         :returns: L'ensemble des coordonnées modifiées qu'il faut envoyer au controleur pour redessin
         """
@@ -140,10 +149,9 @@ class GameEngine(Thread):
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
                 modified_coords.update(self.apply_elements(agent,elements))
-                self.controller.notify()
+                self.controller.notify(LevelSerializer.from_agent(agent.coord, agent))
             case Actions.BIRTH:
                 self.current_level.add_agent(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
-                self.controller.notify()
         
         modified_coords.add(agent.coord)
         return modified_coords
@@ -161,7 +169,6 @@ class GameEngine(Thread):
                 case Actions.EXIT:
                     self.current_level.delete_agent(agent)
                     self.current_level.remaining_to_win -= 1
-                    self.controller.notify()
                 case Actions.TELEPORT:
                     self.current_level.rm_element(agent)
                     agent.coord = el.coord_dest

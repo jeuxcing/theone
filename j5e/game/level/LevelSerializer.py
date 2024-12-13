@@ -21,16 +21,20 @@ class LevelSerializer:
 
         return json.dumps({'elements': elements, 'agents': agents}, separators=(',', ':'))
     
-    def from_element(coord, elem):
-        res = LevelSerializer.from_coord(coord)
+    def from_element(coord, elem, with_coord=True):
+        res = {}
+        if with_coord:
+            res.update(LevelSerializer.from_coord(coord))
         if isinstance(elem, Exit):
             res.update({'type': 'Exit', 'remaining_lemmings': elem.remaining_lemmings})
         elif isinstance(elem, Teleporter):
             res.update({'type': 'Teleporter', 'coord_dest': LevelSerializer.from_coord(elem.coord_dest)})
         return res
     
-    def from_agent(coord, agent):
-        res = LevelSerializer.from_coord(coord)
+    def from_agent(coord, agent, with_coord=True):
+        res = {}
+        if with_coord:
+            res.update(LevelSerializer.from_coord(coord))
         if isinstance(agent, Lemming):
             res.update({'type': 'Lemming'})
         elif isinstance(agent, Generator):
@@ -44,3 +48,14 @@ class LevelSerializer:
             'segtype': coord.segment_type.name,
             'offset': coord.seg_offset
         }
+    
+    def from_coord_content(lvl, coord):
+        elements = [LevelSerializer.from_element(coord, elem, False) for elem in lvl.get_elements(coord)]
+        agents = [LevelSerializer.from_agent(coord, agent, False) for agent in lvl.get_agents(coord)]
+        return json.dumps({
+            'row': coord.row,
+            'col': coord.col,
+            'segtype': coord.segment_type.name,
+            'offset': coord.seg_offset,
+            'content': elements + agents
+        }, separators=(',', ':'))
