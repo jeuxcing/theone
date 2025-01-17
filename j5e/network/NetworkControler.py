@@ -1,9 +1,10 @@
+import json
 import time
 import socket
 from threading import Thread, Event
 from time import sleep
 from j5e.game import GameEngine
-from j5e.game.level.LevelSerializer import LevelSerializer
+from j5e.game.level.LevelJsonifier import LevelJsonifier
 
 
 class NetworkControler(Thread):
@@ -20,7 +21,7 @@ class NetworkControler(Thread):
         self.clients = []
 
     # msg : chaine de caractères
-    def send_update(self, msg):
+    def send_update(self, msg: str) -> None:
         # On envoie l'update à tous les clients connectés
         for socket in self.update_sockets:
             try:
@@ -40,7 +41,7 @@ class NetworkControler(Thread):
         # msg_list = notified_object.translate_to_msgs()
         if notified_object is None:  
             return
-        self.send_update(notified_object)
+        self.send_update(json.dumps(notified_object, separators=(',', ':')))
         print("ctrl notified")
 
 
@@ -97,12 +98,12 @@ class ClientThread(Thread):
         
         match cmd[0]:
             case "status":
-                txt = LevelSerializer.from_level(self.game.current_level)
+                txt = LevelJsonifier.from_level(self.game.current_level)
                 self.ctrl.notify(txt)
             case "update_socket":
                 port = cmd[1]
                 self.ctrl.connect_update(int(port))
-                self.ctrl.notify(LevelSerializer.from_level(self.game.current_level))
+                self.ctrl.notify(LevelJsonifier.from_level(self.game.current_level))
             case "play":
                 self.game.play()
             case "pause":

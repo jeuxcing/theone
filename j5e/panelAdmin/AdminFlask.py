@@ -48,11 +48,11 @@ class ServerFlask:
         
         @self.app.route('/<path:path>')
         def send_www(path):
-            return send_from_directory('j5e/game/panelAdmin/www', path)
+            return send_from_directory('j5e/panelAdmin/www', path)
         
         @self.app.route('/')
         def send_index():
-            return send_file('j5e/game/panelAdmin/www/index.html')
+            return send_file('j5e/panelAdmin/www/index.html')
             
         @self.app.get('/gamemsg')
         def gamemsg():

@@ -1,44 +1,49 @@
-import json
 from j5e.game.elements.Agent import Generator, Lemming
 from j5e.game.elements.Element import Exit, Teleporter
 
 
-class LevelSerializer:
+class LevelJsonifier:
 
     def __init__(self):
         pass
+
 
     def from_level(lvl):
         elements = []
         for coord, elem_list in lvl.elements.items():
             for elem in elem_list:
-                elements.append(LevelSerializer.from_element(coord, elem))
+                elements.append(LevelJsonifier.from_element(coord, elem))
 
         agents = []
         for coord, ag_list in lvl.agents.items():
             for agent in ag_list:
-                agents.append(LevelSerializer.from_agent(coord, agent))
+                agents.append(LevelJsonifier.from_agent(coord, agent))
 
-        return json.dumps({'elements': elements, 'agents': agents}, separators=(',', ':'))
+        return {'elements': elements, 'agents': agents}
     
     def from_element(coord, elem, with_coord=True):
         res = {}
-        if with_coord:
-            res.update(LevelSerializer.from_coord(coord))
         if isinstance(elem, Exit):
-            res.update({'type': 'Exit', 'remaining_lemmings': elem.remaining_lemmings})
+            res = {'type': 'Exit', 'remaining_lemmings': elem.remaining_lemmings}
         elif isinstance(elem, Teleporter):
-            res.update({'type': 'Teleporter', 'coord_dest': LevelSerializer.from_coord(elem.coord_dest)})
+            res = {'type': 'Teleporter', 'coord_dest': LevelJsonifier.from_coord(elem.coord_dest)}
+
+        if with_coord:
+            res['coords'] = LevelJsonifier.from_coord(coord)
+
         return res
     
     def from_agent(coord, agent, with_coord=True):
         res = {}
-        if with_coord:
-            res.update(LevelSerializer.from_coord(coord))
+        
         if isinstance(agent, Lemming):
-            res.update({'type': 'Lemming'})
+            res = {'type': 'Lemming'}
         elif isinstance(agent, Generator):
-            res.update({'type': 'Generator'})
+            res = {'type': 'Generator'}
+
+        if with_coord:
+            res['coords'] = LevelJsonifier.from_coord(coord)
+
         return res
     
     def from_coord(coord):
@@ -50,12 +55,12 @@ class LevelSerializer:
         }
     
     def from_coord_content(lvl, coord):
-        elements = [LevelSerializer.from_element(coord, elem, False) for elem in lvl.get_elements(coord)]
-        agents = [LevelSerializer.from_agent(coord, agent, False) for agent in lvl.get_agents(coord)]
-        return json.dumps({
+        elements = [LevelJsonifier.from_element(coord, elem, False) for elem in lvl.get_elements(coord)]
+        agents = [LevelJsonifier.from_agent(coord, agent, False) for agent in lvl.get_agents(coord)]
+        return {
             'row': coord.row,
             'col': coord.col,
             'segtype': coord.segment_type.name,
             'offset': coord.seg_offset,
             'content': elements + agents
-        }, separators=(',', ':'))
+        }

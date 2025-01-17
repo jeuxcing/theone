@@ -5,7 +5,6 @@ class VueEngine {
     }
 
     parse_msg(msg) {
-        console.log(msg);
         // charge le message dans un objet json
         let json = JSON.parse(msg);
 
@@ -29,13 +28,12 @@ class VueEngine {
     }
 
     parse_element(element) {
-        let row = element.row;
-        let col = element.col;
-        let segtype = element.segtype;
-        let offset = element.offset;
+        let row = element.coords.row;
+        let col = element.coords.col;
+        let segtype = element.coords.segtype;
+        let offset = element.coords.offset;
         let color = element.type.toLowerCase();
 
-        console.log(row, col, segtype, offset, color);
         this.grid.set_color(row, col, segtype, offset, color);
     }
 

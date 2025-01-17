@@ -14,7 +14,6 @@ class Led
     
     set_color(color)
     {
-        console.log("set_color", color);
         this.set_color_rgb(...color_map[color]);
     }
 
@@ -151,7 +150,6 @@ class Grid{
     }
 
     set_color(row, col, type, offset, color){
-        console.log(row, col, type, offset, color);
         let led_strip;
         switch(type){
             case 'COL':led_strip=this.get_vertical_led_strip(row, col);

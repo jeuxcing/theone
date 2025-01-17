@@ -9,7 +9,7 @@ from j5e.game.level.LevelBuilder import LevelBuilder
 from j5e.game.elements.Element import Actions
 from j5e.game.elements.Agent import Agent, Lemming
 from j5e.game.level.Geometry import Coordinate
-from j5e.game.level.LevelSerializer import LevelSerializer
+from j5e.game.level.LevelJsonifier import LevelJsonifier
 
 
 class GameEngine(Thread):
@@ -53,7 +53,7 @@ class GameEngine(Thread):
             print('Level', self.current_level.name)
             if self.controller is not None:
                 self.controller.notify(
-                    LevelSerializer.from_level(self.current_level)
+                    LevelJsonifier.from_level(self.current_level)
                 )
             else:
                 print("ATTENTION: Pas de controleur == pas de mise à jour", file=stderr)
@@ -124,10 +124,9 @@ class GameEngine(Thread):
             modified_coords.update(self.execute(agent, agent.play()))
 
         # Notifie le controleur avec chaque état de chaque coordonées
-        list_coords_modif = [LevelSerializer.from_coord_content(self.current_level, coord) for coord in modified_coords]
-        print(list_coords_modif)
+        list_coords_modif = [LevelJsonifier.from_coord_content(self.current_level, coord) for coord in modified_coords]
 
-        self.controller.notify(f'[{", ".join(list_coords_modif)}]')
+        self.controller.notify(list_coords_modif)
         
 
     def execute(self, agent, action) -> set[Coordinate]:
@@ -149,7 +148,7 @@ class GameEngine(Thread):
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
                 modified_coords.update(self.apply_elements(agent,elements))
-                self.controller.notify(LevelSerializer.from_agent(agent.coord, agent))
+                self.controller.notify(LevelJsonifier.from_agent(agent.coord, agent))
             case Actions.BIRTH:
                 self.current_level.add_agent(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
         

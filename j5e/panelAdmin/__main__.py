@@ -1,7 +1,7 @@
 # from j5e.game.panelAdmin.AdminWebServer import http_server_start
 import time
 import os
-from j5e.game.panelAdmin.AdminFlask import ServerFlask
+from j5e.panelAdmin.AdminFlask import ServerFlask
 
 
 

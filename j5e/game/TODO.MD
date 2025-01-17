@@ -17,11 +17,9 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 # INPROGRESS
 
 - Mise à jour de l'état des lemmings lors du play. Objectif : voir les déplacements.
-=> Message bien arrivé dans le terminal du navigateur web. !! Manque de détails pour pouvoir le parser correctement. Ajouter une entete de message.
-=> Bug au play après avoir envoyé la notification
 
 # TODO
-
+- refacto from_coord_content / from_coord (DRY)
 - modéliser les événements (état d'un élément du jeu / actions qui démarrent ou s'arrêtent)
 -> le contrôleur (ESP) préempte l'évolution de l'état de sa vue associée mais c'est le moteur de jeu qui reste chef d'orchestre et resynchronise au besoin
 - en pause, tout est synchronisé
