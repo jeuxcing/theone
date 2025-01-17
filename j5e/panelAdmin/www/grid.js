@@ -136,6 +136,9 @@ class Grid{
     }
 
     // Fonctions de simplification pour accéder aux ledstrips
+    //ROW 0 0 -> Grid[0][1]
+    // [ 0| 1|2|3|4|5|6|7|8]
+
 
     get_ring(row, col){
         return this.ledStrips[2*row][2*col];
@@ -150,11 +153,17 @@ class Grid{
     }
 
     set_color(row, col, type, offset, color){
+        let const_type = type;
         let led_strip;
-        switch(type){
-            case 'COL':led_strip=this.get_vertical_led_strip(row, col);
+        switch(const_type){
+            case 'COL':
+                led_strip=this.get_vertical_led_strip(row, col);
+                break;
             case 'ROW':led_strip=this.get_horizontal_led_strip(row, col);
-            case 'RING':led_strip=this.get_ring(row, col);
+                break;
+            case 'RING':
+                led_strip=this.get_ring(row, col);
+                break;
         }
         led_strip.leds[offset].set_color(color);
     }

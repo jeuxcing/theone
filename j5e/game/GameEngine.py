@@ -148,7 +148,9 @@ class GameEngine(Thread):
                 elements = self.current_level.get_elements(agent.coord)
                 print(agent.name," va en ", agent.coord)
                 modified_coords.update(self.apply_elements(agent,elements))
-                self.controller.notify(LevelJsonifier.from_agent(agent.coord, agent))
+                json_object = LevelJsonifier.from_agent(agent.coord, agent)
+                json_object['action'] = 'move'
+                self.controller.notify(json_object)
             case Actions.BIRTH:
                 self.current_level.add_agent(Lemming(f"Lem_{agent.num_lemmings}_{agent.name}", agent.coord, agent.dir))
         

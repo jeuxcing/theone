@@ -16,9 +16,13 @@ Pour gagner un niveau, il faut que le nombre de lemmings requis total soit attei
 
 # INPROGRESS
 
-- Mise à jour de l'état des lemmings lors du play. Objectif : voir les déplacements.
+- Mise à jour de l'état des lemmings lors du play. 
+Pour l'instant on voit les cases se colorer lors du premier déplacement.
 
 # TODO
+- Bug: Horloge set_color 12 ne fonctionne pas
+- On affiche pas le bon pixel lors d'un déplacement sur un anneau.
+- Ajouter l'effacement des traces
 - refacto from_coord_content / from_coord (DRY)
 - modéliser les événements (état d'un élément du jeu / actions qui démarrent ou s'arrêtent)
 -> le contrôleur (ESP) préempte l'évolution de l'état de sa vue associée mais c'est le moteur de jeu qui reste chef d'orchestre et resynchronise au besoin

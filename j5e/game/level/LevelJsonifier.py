@@ -41,6 +41,9 @@ class LevelJsonifier:
         elif isinstance(agent, Generator):
             res = {'type': 'Generator'}
 
+        # Ajouter l'id de l'agent
+        res['id'] = agent.id
+
         if with_coord:
             res['coords'] = LevelJsonifier.from_coord(coord)
 

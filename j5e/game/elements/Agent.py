@@ -5,11 +5,15 @@ from j5e.game.elements.AbstractElement import AbstractElement
 
 #Autonomous elements
 class Agent(AbstractElement):
+    next_id = 0
+
     def __init__(self, name, coord, period = 1):
         super().__init__(coord)
         self.name = name
         self.turn_to_wait = period
         self.period = period
+        self.id = Agent.next_id
+        Agent.next_id += 1
 
     @abstractmethod
     def act(self):
